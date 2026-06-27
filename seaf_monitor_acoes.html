@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" type="image/png" href="assets/img logo.png">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema de gerenciamento setorial SECTI</title>
+<style>
+:root{
+  --bg:#050a14;
+  --panel:#0a1226;
+  --card:#0f1a38;
+  --accent:#2563eb;
+  --accent-2:#60a5fa;
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --ok:#10b981;
+  --paused:#f97316;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:linear-gradient(120deg,#050a14,#0a1226 40%,#050a14 100%);
+  color:var(--text); font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial;
+}
+.logo-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  padding: 4px;
+}
+.container{max-width:1400px; margin:0 auto; padding:18px}
+.header{
+  display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  padding:12px 0 8px;
+}
+.brand{display:flex; gap:12px; align-items:center}
+.logo{
+  width:44px; height:44px; border-radius:12px;
+  background: radial-gradient(120px 60px at 30% 30%, #1e40af, transparent),
+              radial-gradient(120px 80px at 70% 70%, #3b82f6, transparent),
+              linear-gradient(135deg,#0f172a,#0a1226);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), var(--shadow);
+}
+.title h1{margin:0; font-size:20px; letter-spacing:.3px}
+.title small{display:block; color:var(--muted); margin-top:2px}
+
+.controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+button, select, input[type="search"], input[type="text"], input[type="password"], input[type="number"], input[type="date"], textarea, .file{
+  background:#1e293b; color:var(--text); border:1px solid #334155; border-radius:10px; padding:10px 12px;
+  box-shadow: var(--shadow); outline:none; transition: border 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+button{ cursor:pointer; transition:.2s transform ease, .2s background ease }
+button:hover{ transform:translateY(-1px); background:#334155 }
+button.primary{ background: linear-gradient(180deg,#2563eb,#1d4ed8); border-color:#2563eb; }
+button.ghost{ background:transparent; border-color:#334155 }
+button.warn{ background:linear-gradient(180deg,#d97706,#b45309); border-color:#b45309 }
+button.danger{ background:linear-gradient(180deg,#dc2626,#991b1b); border-color:#991b1b }
+.badge{
+  display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 10px; font-size:12px; border:1px solid transparent;
+}
+.badge.ok{ background:#064e3b; border-color:#065f46; color:#a7f3d0 }
+.badge.running{ background:#431407; border-color:#7c2d12; color:#ffedd5 }
+.badge.late{ background:#450a0a; border-color:#7f1d1d; color:#fecaca }
+.badge.warn{ background:#451a03; border-color:#78350f; color:#fef3c7 }
+.badge.idle{ background:#1e293b; border-color:#334155; color:#cbd5e1 }
+.badge.db-ok{ background:#064e3b; border-color:#065f46; color:#a7f3d0 }
+.badge.db-err{ background:#450a0a; border-color:#7f1d1d; color:#fecaca }
+
+.kpis{ display:grid; grid-template-columns: repeat(5,1fr); gap:12px; margin-top:10px}
+.card{
+  background:linear-gradient(180deg,#0f1a38,#0a1226); border:1px solid #1e293b; border-radius:16px; padding:16px; box-shadow: var(--shadow);
+}
+.kpi .label{ color:var(--muted); font-size:12px }
+.kpi .value{ font-size:28px; font-weight:700; margin-top:6px }
+.kpi .delta{ font-size:12px; margin-top:6px; color:var(--muted) }
+
+.filters{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap }
+
+.table{
+  margin-top:14px; overflow:hidden; border-radius:16px; border:1px solid #1e293b; box-shadow: var(--shadow);
+}
+table{ width:100%; border-collapse:collapse; background:#0a1226 }
+thead th{
+  position:sticky; top:0; background:#111827; z-index:1; font-weight:600; text-align:left;
+  padding:12px 10px; border-bottom:1px solid #1e293b; font-size:13px; color:#e2e8f0;
+}
+tbody td{
+  padding:12px 10px; border-bottom:1px solid #1e293b; vertical-align:top; font-size:14px; color:#e2e8f0;
+}
+tbody tr:hover{ background:#1e293b }
+
+.footer{
+  display:flex; justify-content:space-between; align-items:center; gap:10px; margin:14px 0 10px;
+}
+.pager{ display:flex; gap:8px; align-items:center }
+.pager button{ padding:8px 10px }
+.pager .info{ font-size:13px; color:var(--muted) }
+
+.clock{ font-variant-numeric:tabular-nums; color:var(--muted) }
+
+.charts{
+  display:grid; grid-template-columns:1fr 1.4fr; gap:12px; margin-top:12px;
+}
+.chart-card h3{ margin:0 0 12px; font-size:14px; color:var(--muted); font-weight:600 }
+.chart-wrap{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; min-height:180px }
+#chartPie{ width:180px; height:180px; flex-shrink:0 }
+#chartBar{ width:100%; height:220px; display:block }
+.chart-legend{ display:flex; flex-direction:column; gap:6px; font-size:12px; flex:1; min-width:140px }
+.legend-item{ display:flex; align-items:center; gap:8px; color:var(--muted) }
+.legend-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0 }
+
+/* TV mode */
+.tv-on .controls, .tv-on .filters, .tv-on .footer { display:none }
+.tv-on .table tbody td:last-child,
+.tv-on .table thead th:last-child { display:none }
+.tv-on .kpi .value{ font-size:36px }
+.tv-on .title h1{ font-size:24px }
+.tv-on .charts{ grid-template-columns:1fr 1fr; margin-top:16px }
+.tv-on #chartPie{ width:220px; height:220px }
+.tv-on #chartBar{ height:260px }
+.tv-on .chart-card h3{ font-size:16px }
+.fullscreen-hint{ font-size:12px; color:var(--muted); }
+
+.tv-exit-bar{
+  display:none; position:fixed; top:14px; right:14px; z-index:1000;
+  align-items:center; gap:10px; padding:10px 14px;
+  background:rgba(10,18,38,.92); border:1px solid #2563eb; border-radius:12px;
+  box-shadow:var(--shadow); backdrop-filter:blur(8px);
+}
+.tv-on .tv-exit-bar{ display:flex }
+.tv-exit-bar .clock{ font-size:18px; color:var(--text) }
+.tv-exit-bar small{ color:var(--muted); font-size:11px }
+
+.sup-add{ display:flex; gap:8px; margin-bottom:12px }
+.sup-add input{ flex:1 }
+.sup-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #1e293b; gap:10px }
+.sup-nome{ flex:1; font-weight:500 }
+.sup-actions{ display:flex; gap:6px; flex-shrink:0 }
+small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
+
+/* Estilos extras de Autenticação */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.hidden-role { display: none !important; }
+
+/* Responsive */
+@media (max-width: 1100px){
+  .kpis{ grid-template-columns: repeat(2,1fr) }
+  .charts{ grid-template-columns: 1fr }
+}
+@media (max-width: 700px){
+  .kpis{ grid-template-columns: 1fr }
+  thead{ display:none }
+  table, tbody, tr, td{ display:block; width:100% }
+  tbody tr{ border-bottom:1px solid #1e293b }
+  tbody td{ border:none; padding:8px 10px }
+  tbody td::before{ content: attr(data-label); display:block; color:#94a3b8; font-size:12px; margin-bottom:4px }
+}
+</style>
+</head>
+<body>
+
+  <!-- Tela de Login -->
+  <div id="loginScreen" style="display:flex; position:fixed; inset:0; background:rgba(5, 10, 20, 0.95); align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(8px);">
+    <div class="card" style="width: 340px; padding: 24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="text-align:center; margin-bottom: 10px;">
+        <h2 style="margin:0; font-size: 24px;">Login</h2>
+        <small style="color:var(--muted)">Autentique-se para continuar</small>
+      </div>
+      <div class="form-group">
+        <label>Usuário</label>
+        <input id="loginUser" type="text" placeholder="Seu nome de usuário" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input id="loginPass" type="password" placeholder="Sua senha" />
+      </div>
+      <div style="color:var(--danger); font-size:12px; display:none;" id="loginError">Usuário ou senha inválidos.</div>
+      <button id="btnLogin" class="primary" style="padding: 12px; font-weight: bold; margin-top: 10px;">Entrar</button>
+    </div>
+  </div>
+
+  <div class="tv-exit-bar" id="tvExitBar">
+    <div>
+      <div class="clock" id="clockTV">--:--:--</div>
+      <small>Modo TV • troca páginas a cada 15s • Esc para sair</small>
+    </div>
+    <button id="btnExitTV" class="warn">Sair do Modo TV</button>
+  </div>
+
+  <div class="container" id="appContainer" style="display:none;">
+    <div class="header">
+      <div class="brand">
+        <img src="assets/img logo.png" alt="Logo SECTI" class="logo-img" onerror="this.style.display='none'" />
+        <div class="title">
+          <h1>Sistema de gerenciamento setorial SECTI</h1>
+          <small>Secretaria de Estado da Ciência, da Tecnologia e da Inovação — Estado de Alagoas</small>
+        </div>
+      </div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="Buscar por nome, descrição…" />
+        <select id="filterFase">
+          <option value="">Fase (todas)</option>
+          <option>Não iniciado</option>
+          <option>Em andamento</option>
+          <option>Atrasado</option>
+          <option>Parado</option>
+          <option>Concluído</option>
+        </select>
+        <select id="filterSup">
+          <option value="">Superintendência (todas)</option>
+        </select>
+        <button id="btnSups" class="ghost admin-only" title="Cadastrar superintendências">Superintendências</button>
+        <button id="btnUsers" class="ghost admin-only" title="Gerenciar Usuários">Usuários</button>
+        <button id="clearFilters" class="ghost">Limpar</button>
+        <label class="file admin-only">
+          <input id="fileInput" type="file" accept=".csv,.json" hidden />
+          <button id="btnImport">Importar CSV/JSON</button>
+        </label>
+        <button id="btnExport" class="ghost">Exportar CSV</button>
+        <button id="btnAdd" class="primary admin-only">Novo Registro</button>
+        <button id="btnTV" title="Alternar Modo TV (tela auxiliar)">Modo TV</button>
+        <button id="btnFull" class="ghost" title="Tela cheia">Tela cheia</button>
+        <button id="btnLogout" class="danger">Sair</button>
+        <span class="badge db-ok" id="dbStatus" title="Conexão com o banco de dados">BDA</span>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="card kpi"><div class="label">Total de ações</div><div class="value" id="kpiTotal">0</div></div>
+      <div class="card kpi"><div class="label">Em andamento</div><div class="value" id="kpiAnd">0</div></div>
+      <div class="card kpi"><div class="label">Atrasados</div><div class="value" id="kpiAtr">0</div></div>
+      <div class="card kpi"><div class="label">Concluídos</div><div class="value" id="kpiConc">0</div></div>
+      <div class="card kpi"><div class="label">Valor total (R$)</div><div class="value" id="kpiValor">0</div></div>
+    </div>
+
+    <div class="charts">
+      <div class="card chart-card">
+        <h3>Distribuição por fase</h3>
+        <div class="chart-wrap">
+          <svg id="chartPie" viewBox="0 0 200 200" aria-label="Gráfico de pizza por fase"></svg>
+          <div class="chart-legend" id="legendPie"></div>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h3>Valor por superintendência (R$)</h3>
+        <div class="chart-wrap">
+          <svg id="chartBar" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de barras por superintendência"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <small class="help">Dados salvos no banco SQLite (pasta <code>data/seaf.db</code>). Inicie com <code>python server.py</code>.</small>
+    </div>
+
+    <div class="table card">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>Programa / Ação / Projeto</th>
+            <th>Descrição</th>
+            <th>Superintendência</th>
+            <th>Valor (R$)</th>
+            <th>Fase</th>
+            <th>Próxima etapa</th>
+            <th>Prazo para conclusão</th>
+            <th class="admin-only">Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <div class="pager">
+        <button id="prev">◀</button>
+        <span class="info" id="pageInfo">Página 1/1</span>
+        <button id="next">▶</button>
+        <select id="pageSize">
+          <option>10</option>
+          <option>15</option>
+          <option selected>20</option>
+          <option>30</option>
+          <option>50</option>
+        </select>
+        <span class="info">por página</span>
+      </div>
+      <div class="fullscreen-hint">⏱ KPIs e relógio ao vivo</div>
+    </div>
+  </div>
+
+<!-- Modal Edição/Novo Registro -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
+  <div class="card" style="width:min(920px, 96vw); max-height:90vh; overflow:auto; padding:24px; background:var(--panel); border:1px solid #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,.6); border-radius: 20px;">
+    <h3 style="margin:0 0 20px 0; font-size:1.5rem; color:#fff; border-bottom:1px solid #1e293b; padding-bottom:12px;">Dados do Registro</h3>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div class="form-group">
+        <label>Programa / Ação / Projeto</label>
+        <input id="f_nome" placeholder="Digite o nome da ação..." />
+      </div>
+      
+      <div class="form-group">
+        <label>Superintendência</label>
+        <select id="f_sup">
+          <option value="">— Selecione uma superintendência —</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Descrição</label>
+        <textarea id="f_desc" rows="3" placeholder="Detalhes do registro..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Valor (R$)</label>
+        <input id="f_valor" type="number" step="0.01" placeholder="0,00" />
+      </div>
+
+      <div class="form-group">
+        <label>Fase</label>
+        <select id="f_fase">
+          <option>Não iniciado</option>
+          <option>Em andamento</option>
+          <option>Atrasado</option>
+          <option>Parado</option>
+          <option>Concluído</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Próxima etapa</label>
+        <input id="f_prox" placeholder="Ex.: publicar edital, assinar convênio…" />
+      </div>
+
+      <div class="form-group">
+        <label>Prazo para conclusão</label>
+        <input id="f_prazo" type="date" />
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid #1e293b;">
+      <button id="cancel" class="ghost" style="padding: 10px 20px;">Cancelar</button>
+      <button id="save" class="primary" style="padding: 10px 24px; font-weight:600;">Salvar Registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Superintendências -->
+<div id="modalSup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center; z-index:999;">
+  <div class="card" style="width:min(520px, 96vw); max-height:90vh; overflow:auto">
+    <h3 style="margin:0 0 10px 0">Superintendências</h3>
+    <div class="sup-add">
+      <input id="newSupNome" type="text" placeholder="Nome da superintendência" />
+      <button id="btnAddSup" class="primary" type="button">Adicionar</button>
+    </div>
+    <div id="supList"></div>
+    <div style="display:flex; justify-content:flex-end; margin-top:12px">
+      <button id="closeSup" class="ghost" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para criar novos usuários -->
+<div id="modalUsers" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
+  <div class="card" style="width:400px; padding:24px;">
+    <h3 style="margin:0 0 20px 0; border-bottom:1px solid #1e293b; padding-bottom:12px;">Criar Novo Usuário</h3>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Nome de Usuário</label>
+      <input id="newUser" type="text" placeholder="Ex: joao.silva" />
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Senha</label>
+      <input id="newPass" type="password" placeholder="Senha do acesso" />
+    </div>
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label>Nível de Acesso</label>
+      <select id="newRole">
+        <option value="usuario">Visualizador (Apenas Leitura)</option>
+        <option value="admin">Administrador (Controle Total)</option>
+      </select>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="ghost" onclick="document.getElementById('modalUsers').style.display='none'">Cancelar</button>
+      <button id="btnCreateUser" class="primary">Salvar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+let data = [];
+let filtered = [];
+let editingId = null;
+let page = 1;
+let pageSize = 20;
+let tvTimer = null;
+let tvMode = false;
+const API = '/api';
+let sups = [];
+let currentUserRole = null; 
+
+const money = n => (Number(n)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const FASES = ['Não iniciado','Em andamento','Atrasado','Parado','Concluído'];
+const FASE_COLORS = {
+  'Concluído': '#10b981',
+  'Em andamento': '#f97316',
+  'Atrasado': '#ef4444',
+  'Parado': '#f59e0b',
+  'Não iniciado': '#64748b'
+};
+
+function formatShortMoney(n){
+  const v = Number(n)||0;
+  if(v >= 1e6) return 'R$ ' + (v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' mi';
+  if(v >= 1e3) return 'R$ ' + (v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0}) + ' mil';
+  return 'R$ ' + v.toLocaleString('pt-BR');
+}
+
+function renderPieChart(){
+  const counts = FASES.map(f => filtered.filter(d => d.fase === f).length);
+  const total = counts.reduce((a,b)=>a+b,0);
+  const svg = $('#chartPie');
+  const legend = $('#legendPie');
+  if(total === 0){
+    svg.innerHTML = '<text x="100" y="105" text-anchor="middle" fill="#94a3b8" font-size="12">Sem dados</text>';
+    legend.innerHTML = '';
+    return;
+  }
+  const cx=100, cy=100, r=80;
+  let angle = -Math.PI/2;
+  const slices = [];
+  FASES.forEach((f, i) => {
+    if(!counts[i]) return;
+    const slice = counts[i]/total * Math.PI*2;
+    const x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle);
+    angle += slice;
+    const x2 = cx + r*Math.cos(angle), y2 = cy + r*Math.sin(angle);
+    const large = slice > Math.PI ? 1 : 0;
+    slices.push(`<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${FASE_COLORS[f]}" stroke="#0a1226" stroke-width="1.5"/>`);
+  });
+  svg.innerHTML = slices.join('') + `<circle cx="${cx}" cy="${cy}" r="38" fill="#0f1a38"/>`;
+  legend.innerHTML = FASES.map((f,i)=>{
+    if(!counts[i]) return '';
+    const pct = ((counts[i]/total)*100).toFixed(1);
+    return `<div class="legend-item"><span class="legend-dot" style="background:${FASE_COLORS[f]}"></span><span>${f}: <strong style="color:var(--text)">${counts[i]}</strong> (${pct}%)</span></div>`;
+  }).join('');
+}
+
+function renderBarChart(){
+  const names = getSupNames();
+  const svg = $('#chartBar');
+  if(!names.length){
+    svg.innerHTML = '<text x="200" y="110" text-anchor="middle" fill="#94a3b8" font-size="12">Cadastre superintendências</text>';
+    return;
+  }
+  const valores = names.map(s => filtered.filter(d=>d.sup===s).reduce((acc,d)=>acc+(Number(d.valor)||0),0));
+  const maxVal = Math.max(...valores, 1);
+  const w=400, h=220, padL=88, padR=16, padT=16, padB=24;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+  const gap = chartH / names.length;
+  const barH = gap * 0.55;
+  const trunc = s => s.length > 14 ? s.slice(0,12) + '…' : s;
+  let bars = `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#334155" stroke-width="1"/>`;
+  names.forEach((s, i) => {
+    const v = valores[i];
+    const bw = (v/maxVal)*chartW;
+    const y = padT + i*gap + (gap-barH)/2;
+    bars += `<text x="${padL-6}" y="${y+barH/2+4}" text-anchor="end" fill="#94a3b8" font-size="11">${esc(trunc(s))}</text>`;
+    bars += `<rect x="${padL}" y="${y}" width="${Math.max(bw, v>0?4:0)}" height="${barH}" rx="5" fill="url(#barGrad)"/>`;
+    if(v>0) bars += `<text x="${padL+bw+6}" y="${y+barH/2+4}" fill="#e2e8f0" font-size="10">${formatShortMoney(v)}</text>`;
+  });
+  svg.innerHTML = `<defs><linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs>${bars}`;
+}
+
+function renderCharts(){
+  renderPieChart();
+  renderBarChart();
+}
+
+function faseBadge(s){
+  const map = {
+    'Concluído': 'ok',
+    'Em andamento': 'running',
+    'Atrasado': 'late',
+    'Parado': 'warn',
+    'Não iniciado': 'idle'
+  };
+  const cls = map[s] || 'idle';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+function setDbStatus(ok, msg){
+  const el = $('#dbStatus');
+  el.className = 'badge ' + (ok ? 'db-ok' : 'db-err');
+  el.textContent = ok ? 'BDA conectada' : 'BDA offline';
+  el.title = msg || (ok ? 'Banco SQLite ativo' : 'Inicie python server.py');
+}
+
+async function api(method, path, body){
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if(body !== undefined) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  if(res.status === 401) {
+    showLogin(); 
+    throw new Error('Não autenticado');
+  }
+  if(!res.ok){
+    let err = 'Erro na API';
+    try{ const j = await res.json(); err = j.erro || err }catch(_){}
+    throw new Error(err);
+  }
+  if(res.status === 204) return null;
+  return res.json();
+}
+
+function showLogin() {
+    $('#loginScreen').style.display = 'flex';
+    $('#appContainer').style.display = 'none';
+}
+
+function applyPermissions() {
+    const isUser = currentUserRole !== 'admin';
+    $$('.admin-only').forEach(el => {
+        if(isUser) el.classList.add('hidden-role');
+        else el.classList.remove('hidden-role');
+    });
+}
+
+// Autenticação
+$('#btnLogin').addEventListener('click', async () => {
+    const username = $('#loginUser').value.trim();
+    const password = $('#loginPass').value.trim();
+    if(!username || !password) return;
+    
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
+        });
+        
+        if(!res.ok) throw new Error('Credenciais inválidas');
+        
+        const user = await res.json();
+        currentUserRole = user.role;
+        
+        $('#loginScreen').style.display = 'none';
+        $('#appContainer').style.display = 'block';
+        $('#loginError').style.display = 'none';
+        
+        applyPermissions();
+        initData();
+    } catch(err) {
+        $('#loginError').style.display = 'block';
+    }
+});
+
+$('#btnLogout').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    location.reload();
+});
+
+// Abertura do Modal de criação de Usuário
+$('#btnUsers').addEventListener('click', () => {
+    $('#newUser').value = '';
+    $('#newPass').value = '';
+    $('#newRole').value = 'usuario';
+    $('#modalUsers').style.display = 'flex';
+});
+
+$('#btnCreateUser').addEventListener('click', async () => {
+    const username = $('#newUser').value.trim();
+    const password = $('#newPass').value.trim();
+    const role = $('#newRole').value;
+    
+    if(!username || !password) {
+        alert("Preencha usuário e senha."); return;
+    }
+    
+    try {
+        await api('POST', '/users', { username, password, role });
+        alert("Usuário criado com sucesso!");
+        $('#modalUsers').style.display = 'none';
+    } catch(err) {
+        alert(err.message);
+    }
+});
+
+async function loadData(){
+  try{
+    data = await api('GET', '/acoes');
+    setDbStatus(true);
+    applyFilters();
+  }catch(e){
+    data = [];
+    setDbStatus(false, e.message);
+  }
+}
+
+function getSupNames(){
+  const set = new Set(sups.map(s => s.nome));
+  filtered.forEach(d => { if(d.sup) set.add(d.sup) });
+  return [...set].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+}
+
+function renderSupSelects(selectedFilter, selectedForm){
+  const names = sups.map(s => s.nome).sort((a,b) => a.localeCompare(b, 'pt-BR'));
+  const filterEl = $('#filterSup');
+  const curFilter = selectedFilter !== undefined ? selectedFilter : filterEl.value;
+  filterEl.innerHTML = '<option value="">Superintendência (todas)</option>' +
+    names.map(n => `<option value="${esc(n)}"${n===curFilter?' selected':''}>${esc(n)}</option>`).join('');
+
+  const formEl = $('#f_sup');
+  const curForm = selectedForm !== undefined ? selectedForm : formEl.value;
+  if(!names.length){
+    formEl.innerHTML = '<option value="">— Cadastre uma superintendência —</option>';
+  } else {
+    let html = names.map(n => `<option value="${esc(n)}"${n===curForm?' selected':''}>${esc(n)}</option>`).join('');
+    if(curForm && !names.includes(curForm)){
+      html += `<option value="${esc(curForm)}" selected>${esc(curForm)}</option>`;
+    }
+    formEl.innerHTML = html;
+  }
+}
+
+function renderSupList(){
+  const el = $('#supList');
+  if(!sups.length){
+    el.innerHTML = '<p style="color:var(--muted);margin:0">Nenhuma cadastrada. Adicione acima.</p>';
+    return;
+  }
+  el.innerHTML = sups.map(s => `
+    <div class="sup-row">
+      <span class="sup-nome">${esc(s.nome)}</span>
+      <div class="sup-actions">
+        <button type="button" class="ghost" data-rename="${s.id}">Renomear</button>
+        <button type="button" class="danger" data-del="${s.id}">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadSups(){
+  try{
+    sups = await api('GET', '/superintendencias');
+  }catch(e){
+    sups = [];
+  }
+  renderSupSelects();
+  renderSupList();
+}
+
+function openSupModal(){
+  $('#newSupNome').value = '';
+  renderSupList();
+  $('#modalSup').style.display = 'flex';
+}
+
+async function addSup(){
+  const nome = $('#newSupNome').value.trim();
+  if(!nome){ alert('Informe o nome da superintendência.'); return }
+  try{
+    await api('POST', '/superintendencias', { nome });
+    await loadSups();
+    await loadData();
+    applyFilters();
+    $('#newSupNome').value = '';
+  }catch(e){ alert('Erro: ' + e.message) }
+}
+
+async function renameSup(id){
+  const s = sups.find(x => x.id === id);
+  if(!s) return;
+  const nome = prompt('Novo nome:', s.nome);
+  if(nome === null) return;
+  const trimmed = nome.trim();
+  if(!trimmed){ alert('Nome não pode ser vazio.'); return }
+  try{
+    await api('PUT', '/superintendencias/' + id, { nome: trimmed });
+    await loadSups();
+    await loadData();
+    applyFilters();
+  }catch(e){ alert('Erro: ' + e.message) }
+}
+
+async function deleteSup(id){
+  const s = sups.find(x => x.id === id);
+  if(!s) return;
+  if(!confirm(`Excluir "${s.nome}"?`)) return;
+  try{
+    await api('DELETE', '/superintendencias/' + id);
+    await loadSups();
+    applyFilters();
+  }catch(e){ alert('Erro: ' + e.message) }
+}
+
+function applyFilters(){
+  const q = $('#search').value.trim().toLowerCase();
+  const fase = $('#filterFase').value;
+  const sup = $('#filterSup').value;
+  filtered = data.filter(d=>{
+    const matchesQ = !q || [d.nome,d.desc,d.prox].some(v=>String(v||'').toLowerCase().includes(q));
+    const matchesF = !fase || d.fase===fase;
+    const matchesS = !sup || d.sup===sup;
+    return matchesQ && matchesF && matchesS;
+  });
+  page = 1;
+  render();
+}
+
+function render(){
+  // KPIs
+  $('#kpiTotal').textContent = filtered.length;
+  $('#kpiAnd').textContent = filtered.filter(d=>d.fase==='Em andamento').length;
+  $('#kpiAtr').textContent = filtered.filter(d=>d.fase==='Atrasado').length;
+  $('#kpiConc').textContent = filtered.filter(d=>d.fase==='Concluído').length;
+  const totalValor = filtered.reduce((s,d)=>s+(Number(d.valor)||0),0);
+  $('#kpiValor').textContent = money(totalValor);
+
+  // Tabela
+  pageSize = Number($('#pageSize').value);
+  const start = (page-1)*pageSize;
+  const rows = filtered.slice(start, start+pageSize);
+  const tbody = document.querySelector('#tbl tbody');
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">Nenhum registro. Clique em <strong>Novo Registro</strong> ou importe um CSV/JSON.</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(d=>`<tr>
+      <td data-label="Programa / Ação / Projeto">${esc(d.nome)}</td>
+      <td data-label="Descrição">${esc(d.desc)}</td>
+      <td data-label="Superintendência">${esc(d.sup)}</td>
+      <td data-label="Valor (R$)">${money(d.valor)}</td>
+      <td data-label="Fase">${faseBadge(d.fase||'')}</td>
+      <td data-label="Próxima etapa">${esc(d.prox)}</td>
+      <td data-label="Prazo para conclusão">${d.prazo? new Date(d.prazo+'T12:00:00').toLocaleDateString('pt-BR'):''}</td>
+      <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}" data-label="Ações">
+        <button onclick="editRow(${d.id})">Editar</button>
+        <button class="danger" onclick="delRow(${d.id})">Excluir</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  // Paginação
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  $('#pageInfo').textContent = `Página ${Math.min(page,pages)}/${pages}`;
+
+  renderCharts();
+}
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function editRow(id){
+  editingId = id;
+  const d = data.find(x => x.id === id);
+  if(!d) return;
+  renderSupSelects(undefined, d.sup||'');
+  $('#f_nome').value = d.nome||'';
+  $('#f_sup').value = d.sup||'';
+  $('#f_desc').value = d.desc||'';
+  $('#f_valor').value = d.valor||0;
+  $('#f_fase').value = d.fase||'Não iniciado';
+  $('#f_prox').value = d.prox||'';
+  $('#f_prazo').value = d.prazo||'';
+  $('#modal').style.display='flex';
+}
+
+function clearModal(){
+  editingId = null;
+  $('#f_nome').value='';
+  $('#f_sup').value='';
+  $('#f_desc').value='';
+  $('#f_valor').value='';
+  $('#f_fase').value='Não iniciado';
+  $('#f_prox').value='';
+  $('#f_prazo').value='';
+}
+
+function addRow(){
+  clearModal();
+  renderSupSelects();
+  $('#modal').style.display='flex';
+}
+
+async function saveRow(){
+  const d = {
+    nome: $('#f_nome').value.trim(),
+    sup: $('#f_sup').value,
+    desc: $('#f_desc').value.trim(),
+    valor: parseFloat($('#f_valor').value||'0'),
+    fase: $('#f_fase').value,
+    prox: $('#f_prox').value.trim(),
+    prazo: $('#f_prazo').value
+  };
+  if(!d.sup){
+    alert('Selecione uma superintendência. Cadastre em "Superintendências" se necessário.');
+    return;
+  }
+  try{
+    if(editingId === null) await api('POST', '/acoes', d);
+    else await api('PUT', '/acoes/' + editingId, d);
+    await loadData();
+    await loadSups();
+    applyFilters();
+    $('#modal').style.display='none';
+  }catch(e){ alert('Erro ao salvar: ' + e.message) }
+}
+
+async function delRow(id){
+  if(!confirm('Excluir este registro?')) return;
+  try{
+    await api('DELETE', '/acoes/' + id);
+    await loadData();
+    applyFilters();
+  }catch(e){ alert('Erro ao excluir: ' + e.message) }
+}
+
+function paginate(dir){
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  page = Math.min(pages, Math.max(1, page+dir));
+  render();
+}
+
+function exportCSV(){
+  const headers = ['nome','desc','sup','valor','fase','prox','prazo'];
+  const rows = [headers.join(',')].concat(data.map(d=>headers.map(h=>{
+    const v = (d[h]??'').toString().replace(/"/g,'""');
+    return `"${v}"`;
+  }).join(',')));
+  const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'seaf_monitor.csv';
+  a.click();
+}
+
+function importFile(file){
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const text = e.target.result;
+    try {
+      let arr;
+      if(file.name.endsWith('.json')){
+        arr = JSON.parse(text);
+      } else {
+        arr = parseCSV(text);
+      }
+      if(!Array.isArray(arr)) throw new Error('Formato inválido');
+      const payload = arr.map(r=>({
+        nome: r.nome || r['Programa / Ação / Projeto'] || r['programa'] || r['ação'] || r['projeto'] || r['programa/ação/projeto'] || '',
+        desc: r.desc || r['Descrição'] || r['descricao'] || '',
+        sup: r.sup || r['Superintendência'] || r['superintendência'] || r['superintendencia'] || '',
+        valor: Number(r.valor || r['Valor'] || r['Valor (R$)'] || 0),
+        fase: r.fase || r['Fase'] || 'Não iniciado',
+        prox: r.prox || r['Próxima etapa'] || r['proxima_etapa'] || '',
+        prazo: r.prazo || r['Prazo para conclusão'] || r['prazo'] || ''
+      }));
+      const res = await api('POST', '/acoes/importar', payload);
+      data = res.acoes;
+      await loadSups();
+      setDbStatus(true);
+      applyFilters();
+      alert(`Importação concluída! ${res.importados} registro(s) no banco.`);
+    } catch(err){
+      alert('Falha na importação: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+  if(lines.length===0) return [];
+  const headers = splitCSVLine(lines[0]).map(h=>h.trim().replace(/^"|"$/g,''));
+  const arr = [];
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVLine(lines[i]).map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"'));
+    const obj = {};
+    headers.forEach((h,idx)=>obj[h]=cols[idx] ?? '');
+    arr.push(obj);
+  }
+  return arr;
+}
+function splitCSVLine(line){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"' && (i===0 || line[i-1]!=='\\')){ q=!q; cur+=ch; }
+    else if(ch===',' && !q){ out.push(cur); cur=''; }
+    else{ cur+=ch; }
+  }
+  out.push(cur);
+  return out;
+}
+
+function clockTick(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const t = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('clock').textContent = t;
+  const clockTV = document.getElementById('clockTV');
+  if(clockTV) clockTV.textContent = t;
+}
+setInterval(clockTick, 1000);
+
+function updateTVButton(){
+  const btn = $('#btnTV');
+  btn.textContent = tvMode ? 'Sair do Modo TV' : 'Modo TV';
+  btn.classList.toggle('warn', tvMode);
+  btn.classList.toggle('ghost', !tvMode);
+}
+
+function setTVMode(on){
+  tvMode = on;
+  document.body.classList.toggle('tv-on', tvMode);
+  updateTVButton();
+  if(tvMode){
+    tvTimer = setInterval(()=>{
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      page = page % pages + 1;
+      render();
+    }, 15000);
+  } else {
+    clearInterval(tvTimer);
+    tvTimer = null;
+  }
+}
+
+function toggleTV(){
+  setTVMode(!tvMode);
+}
+function goFull(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+// Eventos
+document.getElementById('search').addEventListener('input', applyFilters);
+document.getElementById('filterFase').addEventListener('change', applyFilters);
+document.getElementById('filterSup').addEventListener('change', applyFilters);
+document.getElementById('clearFilters').addEventListener('click', ()=>{
+  document.getElementById('search').value='';
+  document.getElementById('filterFase').value='';
+  document.getElementById('filterSup').value='';
+  applyFilters();
+});
+document.getElementById('btnExport').addEventListener('click', exportCSV);
+document.getElementById('btnImport').addEventListener('click', ()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e=>{
+  if(e.target.files[0]) importFile(e.target.files[0]);
+  e.target.value = '';
+});
+document.getElementById('btnAdd').addEventListener('click', addRow);
+document.getElementById('btnSups').addEventListener('click', openSupModal);
+document.getElementById('btnAddSup').addEventListener('click', addSup);
+document.getElementById('newSupNome').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') addSup();
+});
+document.getElementById('closeSup').addEventListener('click', ()=> $('#modalSup').style.display='none');
+document.getElementById('supList').addEventListener('click', e=>{
+  const rename = e.target.closest('[data-rename]');
+  const del = e.target.closest('[data-del]');
+  if(rename) renameSup(Number(rename.dataset.rename));
+  if(del) deleteSup(Number(del.dataset.del));
+});
+document.getElementById('save').addEventListener('click', saveRow);
+document.getElementById('cancel').addEventListener('click', ()=>$('#modal').style.display='none');
+document.getElementById('prev').addEventListener('click', ()=>{ page=Math.max(1,page-1); render() });
+document.getElementById('next').addEventListener('click', ()=>{ const pages=Math.max(1,Math.ceil(filtered.length/Number(document.getElementById('pageSize').value))); page=Math.min(pages,page+1); render() });
+document.getElementById('pageSize').addEventListener('change', ()=>{ page=1; render() });
+document.getElementById('btnTV').addEventListener('click', toggleTV);
+document.getElementById('btnExitTV').addEventListener('click', ()=> setTVMode(false));
+document.getElementById('btnFull').addEventListener('click', goFull);
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && tvMode) setTVMode(false);
+});
+
+async function initAuth(){
+  try {
+    const res = await fetch('/api/me');
+    if(!res.ok) throw new Error('Não logado');
+    const user = await res.json();
+    currentUserRole = user.role;
+    $('#loginScreen').style.display = 'none';
+    $('#appContainer').style.display = 'block';
+    
+    applyPermissions();
+    initData();
+  } catch(e) {
+    showLogin();
+  }
+}
+
+async function initData() {
+    await loadData();
+    await loadSups(); 
+    clockTick();
+}
+
+initAuth();
+</script>
+</body>
+</html>
