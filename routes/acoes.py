@@ -78,7 +78,7 @@ def importar_acoes():
                 """
                 INSERT INTO acoes (
                     nome, descricao, superintendencia, valor, fase,
-                    proxima_etapa, prazo, status, criado_em, updated_em
+                    proxima_etapa, prazo, status, criado_em, atualizado_em
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
                 """,
                 (item.get('nome', ''), item.get('desc', ''), item.get('sup', ''), 
@@ -94,7 +94,6 @@ def importar_acoes():
         rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
                 
     return jsonify({"msg": "Importação concluída", "importados": count, "acoes": [row_to_dict(r) for r in rows]}), 201
-
 @acoes_bp.get("/api/superintendencias")
 @login_required
 def list_superintendencias():

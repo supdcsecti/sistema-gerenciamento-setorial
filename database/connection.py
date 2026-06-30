@@ -51,11 +51,10 @@ def init_db():
             """
         )
         
-        # Inserção do administrador padrão (se não existir)
-        # O login padrão será: admin / admin123
-        admin_pass = generate_password_hash("admin123")
-        conn.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)", ('admin', admin_pass, 'admin'))
-
+        # Ins# Inserção do administrador padrão (se não existir)
+        # O login padrão será: administrator / Secti@2026!
+        admin_pass = generate_password_hash("Secti@2026!")
+        conn.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)", ('administrator', admin_pass, 'admin'))
 def row_to_dict(row):
     """Converte uma linha do banco de dados SQLite para um dicionário Python."""
     return {
