@@ -18,7 +18,7 @@ def get_db():
     return conn
 
 def init_db():
-    """Inicializa as tabelas do banco de dados, incluindo usuários e senhas."""
+    """Inicializa as tabelas do banco de dados, incluindo usuários, ações e alertas."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     with get_db() as conn:
         conn.executescript(
@@ -28,6 +28,7 @@ def init_db():
                 nome TEXT NOT NULL DEFAULT '',
                 descricao TEXT NOT NULL DEFAULT '',
                 superintendencia TEXT NOT NULL DEFAULT '',
+                responsavel TEXT NOT NULL DEFAULT '',
                 valor REAL NOT NULL DEFAULT 0,
                 fase TEXT NOT NULL DEFAULT 'Não iniciado',
                 proxima_etapa TEXT NOT NULL DEFAULT '',
@@ -40,7 +41,10 @@ def init_db():
             CREATE TABLE IF NOT EXISTS users (
                 username TEXT PRIMARY KEY,
                 password TEXT NOT NULL,
-                role TEXT NOT NULL DEFAULT 'usuario'
+                role TEXT NOT NULL DEFAULT 'usuario',
+                setor TEXT NOT NULL DEFAULT '',
+                email TEXT NOT NULL DEFAULT '',
+                requer_reset INTEGER NOT NULL DEFAULT 0
             );
 
             CREATE TABLE IF NOT EXISTS superintendencias (
@@ -48,20 +52,34 @@ def init_db():
                 nome TEXT NOT NULL UNIQUE,
                 criado_em TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS solicitacoes_reset (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                criado_em TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pendente'
+            );
             """
         )
         
-        # Ins# Inserção do administrador padrão (se não existir)
-        # O login padrão será: administrator / Secti@2026!
+        # Inserção do administrador padrão institucional
         admin_pass = generate_password_hash("Secti@2026!")
-        conn.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)", ('administrator', admin_pass, 'admin'))
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO users (username, password, role, setor, email, requer_reset) 
+            VALUES (?, ?, ?, 'Tecnologia', 'admin@secti.al.gov.br', 0)
+            """, 
+            ('administrator', admin_pass, 'admin')
+        )
+
 def row_to_dict(row):
-    """Converte uma linha do banco de dados SQLite para um dicionário Python."""
+    """Converte uma linha do banco de dados SQLite para um dicionário Python unificado com o front-end."""
     return {
         "id": row["id"],
         "nome": row["nome"],
         "desc": row["descricao"],
         "sup": row["superintendencia"],
+        "responsavel": row["responsavel"],
         "valor": row["valor"],
         "fase": row["fase"],
         "prox": row["proxima_etapa"],

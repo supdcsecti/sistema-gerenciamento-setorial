@@ -8,7 +8,7 @@ acoes_bp = Blueprint('acoes', __name__)
 @acoes_bp.get("/api/acoes")
 @login_required
 def list_acoes():
-    """Lista todas as ações cadastradas. Permite visualizadores."""
+    """Lista todas as ações cadastradas. Permite visualizadores comuns."""
     with get_db() as conn:
         rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
     return jsonify([row_to_dict(r) for r in rows])
@@ -16,19 +16,19 @@ def list_acoes():
 @acoes_bp.post("/api/acoes")
 @admin_required
 def create_acao():
-    """Cria uma nova ação. Apenas administradores."""
+    """Cria uma nova ação com o campo responsável. Apenas administradores."""
     body = request.get_json()
     now = utc_now()
     with get_db() as conn:
         cur = conn.execute(
             """
             INSERT INTO acoes (
-                nome, descricao, superintendencia, valor, fase,
+                nome, descricao, superintendencia, responsavel, valor, fase,
                 proxima_etapa, prazo, status, criado_em, atualizado_em
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
             """,
             (body.get('nome', ''), body.get('desc', ''), body.get('sup', ''), 
-             body.get('valor', 0), body.get('fase', 'Não iniciado'), 
+             body.get('responsavel', ''), body.get('valor', 0), body.get('fase', 'Não iniciado'), 
              body.get('prox', ''), body.get('prazo', ''), now, now),
         )
         row = conn.execute("SELECT * FROM acoes WHERE id = ?", (cur.lastrowid,)).fetchone()
@@ -37,19 +37,19 @@ def create_acao():
 @acoes_bp.put("/api/acoes/<int:acao_id>")
 @admin_required
 def update_acao(acao_id):
-    """Atualiza uma ação existente. Apenas administradores."""
+    """Atualiza uma ação existente incluindo o responsável. Apenas administradores."""
     body = request.get_json()
     now = utc_now()
     with get_db() as conn:
         conn.execute(
             """
             UPDATE acoes SET 
-                nome = ?, descricao = ?, superintendencia = ?, valor = ?, 
+                nome = ?, descricao = ?, superintendencia = ?, responsavel = ?, valor = ?, 
                 fase = ?, proxima_etapa = ?, prazo = ?, atualizado_em = ?
             WHERE id = ?
             """,
             (body.get('nome', ''), body.get('desc', ''), body.get('sup', ''), 
-             body.get('valor', 0), body.get('fase', 'Não iniciado'), 
+             body.get('responsavel', ''), body.get('valor', 0), body.get('fase', 'Não iniciado'), 
              body.get('prox', ''), body.get('prazo', ''), now, acao_id)
         )
     return jsonify({"msg": "Atualizado com sucesso"})
@@ -57,15 +57,31 @@ def update_acao(acao_id):
 @acoes_bp.delete("/api/acoes/<int:acao_id>")
 @admin_required
 def delete_acao(acao_id):
-    """Exclui uma ação existente. Apenas administradores."""
+    """Exclui uma ação existente individualmente. Apenas administradores."""
     with get_db() as conn:
         conn.execute("DELETE FROM acoes WHERE id = ?", (acao_id,))
     return "", 204
 
+@acoes_bp.post("/api/acoes/excluir-lote")
+@admin_required
+def excluir_acoes_lote():
+    """Exclui múltiplas ações selecionadas manualmente de uma vez só via ID. Apenas administradores."""
+    body = request.get_json()
+    ids_para_excluir = body.get("ids", [])
+    
+    if not ids_para_excluir or not isinstance(ids_para_excluir, list):
+        return jsonify({"erro": "Nenhum registro selecionado ou formato inválido"}), 400
+        
+    with get_db() as conn:
+        placeholders = ",".join("?" for _ in ids_para_excluir)
+        conn.execute(f"DELETE FROM acoes WHERE id IN ({placeholders})", ids_para_excluir)
+        
+    return jsonify({"msg": f"{len(ids_para_excluir)} registos excluídos com sucesso!"}), 200
+
 @acoes_bp.post("/api/acoes/importar")
 @admin_required
 def importar_acoes():
-    """Importa múltiplas ações em lote via JSON/CSV."""
+    """Importa múltiplas ações em lote via JSON/CSV contendo o campo responsável."""
     payload = request.get_json()
     now = utc_now()
     if not isinstance(payload, list):
@@ -77,12 +93,12 @@ def importar_acoes():
             conn.execute(
                 """
                 INSERT INTO acoes (
-                    nome, descricao, superintendencia, valor, fase,
+                    nome, descricao, superintendencia, responsavel, valor, fase,
                     proxima_etapa, prazo, status, criado_em, atualizado_em
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
                 """,
                 (item.get('nome', ''), item.get('desc', ''), item.get('sup', ''), 
-                 item.get('valor', 0), item.get('fase', 'Não iniciado'), 
+                 item.get('responsavel', ''), item.get('valor', 0), item.get('fase', 'Não iniciado'), 
                  item.get('prox', ''), item.get('prazo', ''), now, now)
             )
             count += 1
@@ -94,10 +110,11 @@ def importar_acoes():
         rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
                 
     return jsonify({"msg": "Importação concluída", "importados": count, "acoes": [row_to_dict(r) for r in rows]}), 201
+
 @acoes_bp.get("/api/superintendencias")
 @login_required
 def list_superintendencias():
-    """Lista todas as superintendências. Permite visualizadores."""
+    """Lista todas as superintendências. Permite visualizadores comuns."""
     with get_db() as conn:
         rows = conn.execute("SELECT id, nome FROM superintendencias").fetchall()
     return jsonify([{"id": r["id"], "nome": r["nome"]} for r in rows])

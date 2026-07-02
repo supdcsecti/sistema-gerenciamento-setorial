@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/png" href="assets/img logo.png">
+<link rel="icon" type="image/png" href="assets/img logo.png">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sistema de gerenciamento setorial SECTI</title>
@@ -40,21 +40,16 @@ body{
   padding:12px 0 8px;
 }
 .brand{display:flex; gap:12px; align-items:center}
-.logo{
-  width:44px; height:44px; border-radius:12px;
-  background: radial-gradient(120px 60px at 30% 30%, #1e40af, transparent),
-              radial-gradient(120px 80px at 70% 70%, #3b82f6, transparent),
-              linear-gradient(135deg,#0f172a,#0a1226);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), var(--shadow);
-}
 .title h1{margin:0; font-size:20px; letter-spacing:.3px}
 .title small{display:block; color:var(--muted); margin-top:2px}
 
 .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-button, select, input[type="search"], input[type="text"], input[type="password"], input[type="number"], input[type="date"], textarea, .file{
+
+button, select, input, textarea, .file{
   background:#1e293b; color:var(--text); border:1px solid #334155; border-radius:10px; padding:10px 12px;
-  box-shadow: var(--shadow); outline:none; transition: border 0.2s;
+  box-shadow: var(--shadow); outline:none; transition: border 0.2s; width: 100%;
 }
+.controls input, .controls select, .controls button { width: auto; }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 button{ cursor:pointer; transition:.2s transform ease, .2s background ease }
 button:hover{ transform:translateY(-1px); background:#334155 }
@@ -62,6 +57,7 @@ button.primary{ background: linear-gradient(180deg,#2563eb,#1d4ed8); border-colo
 button.ghost{ background:transparent; border-color:#334155 }
 button.warn{ background:linear-gradient(180deg,#d97706,#b45309); border-color:#b45309 }
 button.danger{ background:linear-gradient(180deg,#dc2626,#991b1b); border-color:#991b1b }
+
 .badge{
   display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 10px; font-size:12px; border:1px solid transparent;
 }
@@ -79,9 +75,6 @@ button.danger{ background:linear-gradient(180deg,#dc2626,#991b1b); border-color:
 }
 .kpi .label{ color:var(--muted); font-size:12px }
 .kpi .value{ font-size:28px; font-weight:700; margin-top:6px }
-.kpi .delta{ font-size:12px; margin-top:6px; color:var(--muted) }
-
-.filters{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap }
 
 .table{
   margin-top:14px; overflow:hidden; border-radius:16px; border:1px solid #1e293b; box-shadow: var(--shadow);
@@ -95,14 +88,17 @@ tbody td{
   padding:12px 10px; border-bottom:1px solid #1e293b; vertical-align:top; font-size:14px; color:#e2e8f0;
 }
 tbody tr:hover{ background:#1e293b }
+tbody tr.selected-row { background: rgba(37, 99, 235, 0.15) !important; }
+
+/* Estilização customizada para a caixas de seleção quadradas */
+input[type="checkbox"].row-selector {
+  width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);
+}
 
 .footer{
   display:flex; justify-content:space-between; align-items:center; gap:10px; margin:14px 0 10px;
 }
 .pager{ display:flex; gap:8px; align-items:center }
-.pager button{ padding:8px 10px }
-.pager .info{ font-size:13px; color:var(--muted) }
-
 .clock{ font-variant-numeric:tabular-nums; color:var(--muted) }
 
 .charts{
@@ -116,58 +112,28 @@ tbody tr:hover{ background:#1e293b }
 .legend-item{ display:flex; align-items:center; gap:8px; color:var(--muted) }
 .legend-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0 }
 
-/* TV mode */
 .tv-on .controls, .tv-on .filters, .tv-on .footer { display:none }
-.tv-on .table tbody td:last-child,
-.tv-on .table thead th:last-child { display:none }
-.tv-on .kpi .value{ font-size:36px }
-.tv-on .title h1{ font-size:24px }
-.tv-on .charts{ grid-template-columns:1fr 1fr; margin-top:16px }
-.tv-on #chartPie{ width:220px; height:220px }
-.tv-on #chartBar{ height:260px }
-.tv-on .chart-card h3{ font-size:16px }
-.fullscreen-hint{ font-size:12px; color:var(--muted); }
-
+.tv-on .table tbody td:last-child, .tv-on .table thead th:last-child { display:none }
 .tv-exit-bar{
   display:none; position:fixed; top:14px; right:14px; z-index:1000;
   align-items:center; gap:10px; padding:10px 14px;
   background:rgba(10,18,38,.92); border:1px solid #2563eb; border-radius:12px;
-  box-shadow:var(--shadow); backdrop-filter:blur(8px);
 }
 .tv-on .tv-exit-bar{ display:flex }
-.tv-exit-bar .clock{ font-size:18px; color:var(--text) }
-.tv-exit-bar small{ color:var(--muted); font-size:11px }
 
 .sup-add{ display:flex; gap:8px; margin-bottom:12px }
 .sup-add input{ flex:1 }
 .sup-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #1e293b; gap:10px }
 .sup-nome{ flex:1; font-weight:500 }
 .sup-actions{ display:flex; gap:6px; flex-shrink:0 }
-small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
 
-/* Estilos extras de Autenticação */
 .form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-group label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.form-group label { font-size: 13px; color: var(--muted); font-weight: 500; text-align: left; }
 .hidden-role { display: none !important; }
-
-/* Responsive */
-@media (max-width: 1100px){
-  .kpis{ grid-template-columns: repeat(2,1fr) }
-  .charts{ grid-template-columns: 1fr }
-}
-@media (max-width: 700px){
-  .kpis{ grid-template-columns: 1fr }
-  thead{ display:none }
-  table, tbody, tr, td{ display:block; width:100% }
-  tbody tr{ border-bottom:1px solid #1e293b }
-  tbody td{ border:none; padding:8px 10px }
-  tbody td::before{ content: attr(data-label); display:block; color:#94a3b8; font-size:12px; margin-bottom:4px }
-}
 </style>
 </head>
 <body>
 
-  <!-- Tela de Login -->
   <div id="loginScreen" style="display:flex; position:fixed; inset:0; background:rgba(5, 10, 20, 0.95); align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(8px);">
     <div class="card" style="width: 340px; padding: 24px; display:flex; flex-direction:column; gap:16px;">
       <div style="text-align:center; margin-bottom: 10px;">
@@ -178,12 +144,44 @@ small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
         <label>Usuário</label>
         <input id="loginUser" type="text" placeholder="Seu nome de usuário" />
       </div>
-      <div class="form-group">
+      <div class="form-group" style="position: relative;">
         <label>Senha</label>
-        <input id="loginPass" type="password" placeholder="Sua senha" />
+        <div style="display: flex; gap: 4px;">
+          <input id="loginPass" type="password" placeholder="Sua senha" style="flex: 1;" />
+          <button type="button" id="btnTogglePass" style="padding: 10px; background:#334155; border-radius:10px; width:auto;">👁️</button>
+        </div>
+        <small id="btnEsqueci" style="color: var(--accent-2); cursor: pointer; text-align: right; display: block; margin-top: 4px; font-size: 11px;">Esqueci minha senha</small>
       </div>
+      
+      <div class="form-group" id="recoveryEmailGroup" style="display: none; border-top: 1px dashed #334155; padding-top: 12px;">
+        <label style="color: var(--warn)">E-mail de Recuperação</label>
+        <input id="recoveryEmail" type="text" placeholder="Digite seu e-mail cadastrado" />
+        <div style="display: flex; gap: 4px; margin-top: 6px;">
+          <button id="btnConfirmarReset" class="primary" style="flex: 1; padding: 6px; font-size: 12px;">Enviar Pedido</button>
+          <button id="btnCancelarReset" class="ghost" style="padding: 6px; font-size: 12px;">Voltar</button>
+        </div>
+      </div>
+
       <div style="color:var(--danger); font-size:12px; display:none;" id="loginError">Usuário ou senha inválidos.</div>
       <button id="btnLogin" class="primary" style="padding: 12px; font-weight: bold; margin-top: 10px;">Entrar</button>
+    </div>
+  </div>
+
+  <div id="forceResetScreen" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.98); align-items:center; justify-content:center; z-index:99999; backdrop-filter:blur(10px);">
+    <div class="card" style="width: 360px; padding: 24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="text-align:center; margin-bottom: 5px;">
+        <h2 style="margin:0; font-size: 20px; color: var(--warn);">🔒 Atualização Obrigatória</h2>
+        <small style="color:var(--muted); display:block; margin-top:4px;">Sua senha atual é temporária. Escolha uma nova senha definitiva para liberar o sistema.</small>
+      </div>
+      <div class="form-group">
+        <label>Nova Senha Definitiva</label>
+        <input id="forcedNewPass" type="password" placeholder="Digite sua nova senha estável" />
+      </div>
+      <div class="form-group">
+        <label>Confirme a Nova Senha</label>
+        <input id="forcedNewPassConf" type="password" placeholder="Repita a senha criada" />
+      </div>
+      <button id="btnSaveForcedPass" class="primary" style="padding: 12px; font-weight: bold;">Salvar Nova Senha</button>
     </div>
   </div>
 
@@ -205,7 +203,7 @@ small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
         </div>
       </div>
       <div class="controls">
-        <input id="search" type="search" placeholder="Buscar por nome, descrição…" />
+        <input id="search" type="search" placeholder="Buscar por nome, descrição, responsável…" />
         <select id="filterFase">
           <option value="">Fase (todas)</option>
           <option>Não iniciado</option>
@@ -217,19 +215,23 @@ small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
         <select id="filterSup">
           <option value="">Superintendência (todas)</option>
         </select>
-        <button id="btnSups" class="ghost admin-only" title="Cadastrar superintendências">Superintendências</button>
-        <button id="btnUsers" class="ghost admin-only" title="Gerenciar Usuários">Usuários</button>
+        <button id="btnAlertas" class="warn admin-only" style="display: none;">⚠️ Alertas Reset (<span id="alertCount">0</span>)</button>
+        <button id="btnSups" class="ghost admin-only">Superintendências</button>
+        <button id="btnUsers" class="ghost admin-only">Usuários</button>
         <button id="clearFilters" class="ghost">Limpar</button>
-        <label class="file admin-only">
+        <label class="file admin-only" style="width:auto; padding:0; background:transparent; border:none; box-shadow:none;">
           <input id="fileInput" type="file" accept=".csv,.json" hidden />
           <button id="btnImport">Importar CSV/JSON</button>
         </label>
         <button id="btnExport" class="ghost">Exportar CSV</button>
+        
+        <button id="btnExcluirLote" class="danger admin-only" style="display: none;">🗑️ Excluir Selecionados (<span id="selectedCount">0</span>)</button>
+        
         <button id="btnAdd" class="primary admin-only">Novo Registro</button>
-        <button id="btnTV" title="Alternar Modo TV (tela auxiliar)">Modo TV</button>
-        <button id="btnFull" class="ghost" title="Tela cheia">Tela cheia</button>
+        <button id="btnTV" title="Alternar Modo TV">Modo TV</button>
+        <button id="btnFull" class="ghost">Tela cheia</button>
         <button id="btnLogout" class="danger">Sair</button>
-        <span class="badge db-ok" id="dbStatus" title="Conexão com o banco de dados">BDA</span>
+        <span class="badge db-ok" id="dbStatus">BDA conectada</span>
         <div class="clock" id="clock">--:--:--</div>
       </div>
     </div>
@@ -246,29 +248,27 @@ small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
       <div class="card chart-card">
         <h3>Distribuição por fase</h3>
         <div class="chart-wrap">
-          <svg id="chartPie" viewBox="0 0 200 200" aria-label="Gráfico de pizza por fase"></svg>
+          <svg id="chartPie" viewBox="0 0 200 200"></svg>
           <div class="chart-legend" id="legendPie"></div>
         </div>
       </div>
       <div class="card chart-card">
-        <h3>Valor por superintendência (R$)</h3>
+        <h3>Valor porBox superintendência (R$)</h3>
         <div class="chart-wrap">
-          <svg id="chartBar" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de barras por superintendência"></svg>
+          <svg id="chartBar" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet"></svg>
         </div>
       </div>
-    </div>
-
-    <div class="filters">
-      <small class="help">Dados salvos no banco SQLite (pasta <code>data/seaf.db</code>). Inicie com <code>python server.py</code>.</small>
     </div>
 
     <div class="table card">
       <table id="tbl">
         <thead>
           <tr>
+            <th class="admin-only" style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllRows" style="cursor:pointer;" /></th>
             <th>Programa / Ação / Projeto</th>
             <th>Descrição</th>
             <th>Superintendência</th>
+            <th>Responsável</th>
             <th>Valor (R$)</th>
             <th>Fase</th>
             <th>Próxima etapa</th>
@@ -285,114 +285,89 @@ small.help{ color:var(--muted); font-size:12px; display:block; margin-top:6px }
         <button id="prev">◀</button>
         <span class="info" id="pageInfo">Página 1/1</span>
         <button id="next">▶</button>
-        <select id="pageSize">
+        <select id="pageSize" style="width:auto;">
           <option>10</option>
           <option>15</option>
           <option selected>20</option>
           <option>30</option>
           <option>50</option>
         </select>
-        <span class="info">por página</span>
       </div>
-      <div class="fullscreen-hint">⏱ KPIs e relógio ao vivo</div>
     </div>
   </div>
 
-<!-- Modal Edição/Novo Registro -->
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
-  <div class="card" style="width:min(920px, 96vw); max-height:90vh; overflow:auto; padding:24px; background:var(--panel); border:1px solid #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,.6); border-radius: 20px;">
-    <h3 style="margin:0 0 20px 0; font-size:1.5rem; color:#fff; border-bottom:1px solid #1e293b; padding-bottom:12px;">Dados do Registro</h3>
-    
+  <div class="card" style="width:min(920px, 96vw); max-height:90vh; overflow:auto; padding:24px; background:var(--panel);">
+    <h3 style="margin:0 0 20px 0; font-size:1.5rem; border-bottom:1px solid #1e293b; padding-bottom:12px;">Dados do Registro</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-      <div class="form-group">
-        <label>Programa / Ação / Projeto</label>
-        <input id="f_nome" placeholder="Digite o nome da ação..." />
-      </div>
-      
-      <div class="form-group">
-        <label>Superintendência</label>
-        <select id="f_sup">
-          <option value="">— Selecione uma superintendência —</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Descrição</label>
-        <textarea id="f_desc" rows="3" placeholder="Detalhes do registro..."></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Valor (R$)</label>
-        <input id="f_valor" type="number" step="0.01" placeholder="0,00" />
-      </div>
-
-      <div class="form-group">
-        <label>Fase</label>
-        <select id="f_fase">
-          <option>Não iniciado</option>
-          <option>Em andamento</option>
-          <option>Atrasado</option>
-          <option>Parado</option>
-          <option>Concluído</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Próxima etapa</label>
-        <input id="f_prox" placeholder="Ex.: publicar edital, assinar convênio…" />
-      </div>
-
-      <div class="form-group">
-        <label>Prazo para conclusão</label>
-        <input id="f_prazo" type="date" />
-      </div>
+      <div class="form-group"><label>Programa / Ação / Projeto</label><input id="f_nome" type="text" /></div>
+      <div class="form-group"><label>Superintendência</label><select id="f_sup"></select></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Descrição</label><textarea id="f_desc" rows="3"></textarea></div>
+      <div class="form-group"><label>Responsável pela Demanda</label><select id="f_responsavel"></select></div>
+      <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01" /></div>
+      <div class="form-group"><label>Fase</label><select id="f_fase"><option>Não iniciado</option><option>Em andamento</option><option>Atrasado</option><option>Parado</option><option>Concluído</option></select></div>
+      <div class="form-group"><label>Próxima etapa</label><input id="f_prox" type="text" /></div>
+      <div class="form-group"><label>Prazo para conclusão</label><input id="f_prazo" type="date" /></div>
     </div>
-
     <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid #1e293b;">
-      <button id="cancel" class="ghost" style="padding: 10px 20px;">Cancelar</button>
-      <button id="save" class="primary" style="padding: 10px 24px; font-weight:600;">Salvar Registro</button>
+      <button id="cancel" class="ghost" style="width:auto;">Cancelar</button><button id="save" class="primary" style="width:auto;">Salvar Registro</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Superintendências -->
 <div id="modalSup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center; z-index:999;">
   <div class="card" style="width:min(520px, 96vw); max-height:90vh; overflow:auto">
     <h3 style="margin:0 0 10px 0">Superintendências</h3>
     <div class="sup-add">
       <input id="newSupNome" type="text" placeholder="Nome da superintendência" />
-      <button id="btnAddSup" class="primary" type="button">Adicionar</button>
+      <button id="btnAddSup" class="primary" style="width:auto;">Adicionar</button>
     </div>
     <div id="supList"></div>
-    <div style="display:flex; justify-content:flex-end; margin-top:12px">
-      <button id="closeSup" class="ghost" type="button">Fechar</button>
-    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:12px"><button id="closeSup" class="ghost" style="width:auto;">Fechar</button></div>
   </div>
 </div>
 
-<!-- Modal para criar novos usuários -->
 <div id="modalUsers" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
-  <div class="card" style="width:400px; padding:24px;">
-    <h3 style="margin:0 0 20px 0; border-bottom:1px solid #1e293b; padding-bottom:12px;">Criar Novo Usuário</h3>
+  <div class="card" style="width:460px; padding:24px; max-height: 88vh; overflow-y: auto;">
+    <h3 id="userModalTitle" style="margin:0 0 20px 0; border-bottom:1px solid #1e293b; padding-bottom:12px;">Cadastrar Novo Usuário</h3>
+    
     <div class="form-group" style="margin-bottom: 12px;">
       <label>Nome de Usuário</label>
       <input id="newUser" type="text" placeholder="Ex: joao.silva" />
     </div>
     <div class="form-group" style="margin-bottom: 12px;">
-      <label>Senha</label>
-      <input id="newPass" type="password" placeholder="Senha do acesso" />
+      <label>E-mail Institucional</label>
+      <input id="newEmail" type="text" placeholder="joao.silva@secti.al.gov.br" />
     </div>
-    <div class="form-group" style="margin-bottom: 24px;">
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Setor / Superintendência Vinculada</label>
+      <select id="newSetor"></select>
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label id="passLabel">Senha de Acesso</label>
+      <input id="newPass" type="password" placeholder="Defina a senha" />
+      <small id="passHelp" style="color:var(--muted); font-size:11px; display:none;">Deixe em branco para manter a senha atual.</small>
+    </div>
+    <div class="form-group" style="margin-bottom: 20px;">
       <label>Nível de Acesso</label>
-      <select id="newRole">
-        <option value="usuario">Visualizador (Apenas Leitura)</option>
-        <option value="admin">Administrador (Controle Total)</option>
-      </select>
+      <select id="newRole"><option value="usuario">Visualizador (Apenas Leitura)</option><option value="admin">Administrador (Controle Total)</option></select>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:8px;">
-      <button class="ghost" onclick="document.getElementById('modalUsers').style.display='none'">Cancelar</button>
-      <button id="btnCreateUser" class="primary">Salvar Usuário</button>
+    
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom: 20px;">
+      <button class="ghost" id="btnCancelUserEdit" style="width:auto;">Cancelar / Fechar</button>
+      <button id="btnCreateUser" class="primary" style="width:auto;">Salvar Usuário</button>
     </div>
+    
+    <h3 style="margin:20px 0 10px 0; border-top:1px solid #1e293b; padding-top:12px; font-size:13px; color:var(--muted)">Usuários Cadastrados</h3>
+    <div id="listaUsuariosCadastrados"></div>
+  </div>
+</div>
+
+<div id="modalAlertas" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); align-items:center; justify-content:center; z-index:999;">
+  <div class="card" style="width:440px; padding:24px;">
+    <h3 style="margin:0 0 15px 0; border-bottom:1px solid #1e293b; padding-bottom:8px;">Solicitações de Reset de Senha</h3>
+    <div id="listaAlertasPnd" style="max-height: 240px; overflow-y: auto; margin-bottom: 15px;"></div>
+    <div style="display:flex; justify-content:flex-end;"><button class="ghost" onclick="document.getElementById('modalAlertas').style.display='none'; checarAlertas();" style="width:auto;">Fechar</button></div>
   </div>
 </div>
 
@@ -408,17 +383,14 @@ let tvTimer = null;
 let tvMode = false;
 const API = '/api';
 let sups = [];
+let systemUsers = []; 
 let currentUserRole = null; 
+let isEditingUser = false;
+let checkedIds = new Set(); // NOVO: Armazena os IDs das demandas selecionadas para exclusão em bloco
 
 const money = n => (Number(n)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 const FASES = ['Não iniciado','Em andamento','Atrasado','Parado','Concluído'];
-const FASE_COLORS = {
-  'Concluído': '#10b981',
-  'Em andamento': '#f97316',
-  'Atrasado': '#ef4444',
-  'Parado': '#f59e0b',
-  'Não iniciado': '#64748b'
-};
+const FASE_COLORS = {'Concluído': '#10b981', 'Em andamento': '#f97316', 'Atrasado': '#ef4444', 'Parado': '#f59e0b', 'Não iniciado': '#64748b'};
 
 function formatShortMoney(n){
   const v = Number(n)||0;
@@ -430,53 +402,36 @@ function formatShortMoney(n){
 function renderPieChart(){
   const counts = FASES.map(f => filtered.filter(d => d.fase === f).length);
   const total = counts.reduce((a,b)=>a+b,0);
-  const svg = $('#chartPie');
-  const legend = $('#legendPie');
-  if(total === 0){
-    svg.innerHTML = '<text x="100" y="105" text-anchor="middle" fill="#94a3b8" font-size="12">Sem dados</text>';
-    legend.innerHTML = '';
-    return;
-  }
-  const cx=100, cy=100, r=80;
-  let angle = -Math.PI/2;
-  const slices = [];
+  const svg = $('#chartPie'); const legend = $('#legendPie');
+  if(total === 0){ svg.innerHTML = '<text x="100" y="105" text-anchor="middle" fill="#94a3b8" font-size="12">Sem dados</text>'; legend.innerHTML = ''; return; }
+  const cx=100, cy=100, r=80; let angle = -Math.PI/2; const slices = [];
   FASES.forEach((f, i) => {
     if(!counts[i]) return;
     const slice = counts[i]/total * Math.PI*2;
-    const x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle);
-    angle += slice;
+    const x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle); angle += slice;
     const x2 = cx + r*Math.cos(angle), y2 = cy + r*Math.sin(angle);
     const large = slice > Math.PI ? 1 : 0;
     slices.push(`<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${FASE_COLORS[f]}" stroke="#0a1226" stroke-width="1.5"/>`);
   });
   svg.innerHTML = slices.join('') + `<circle cx="${cx}" cy="${cy}" r="38" fill="#0f1a38"/>`;
   legend.innerHTML = FASES.map((f,i)=>{
-    if(!counts[i]) return '';
-    const pct = ((counts[i]/total)*100).toFixed(1);
+    if(!counts[i]) return ''; const pct = ((counts[i]/total)*100).toFixed(1);
     return `<div class="legend-item"><span class="legend-dot" style="background:${FASE_COLORS[f]}"></span><span>${f}: <strong style="color:var(--text)">${counts[i]}</strong> (${pct}%)</span></div>`;
   }).join('');
 }
 
 function renderBarChart(){
-  const names = getSupNames();
-  const svg = $('#chartBar');
-  if(!names.length){
-    svg.innerHTML = '<text x="200" y="110" text-anchor="middle" fill="#94a3b8" font-size="12">Cadastre superintendências</text>';
-    return;
-  }
+  const names = getSupNames(); const svg = $('#chartBar');
+  if(!names.length){ svg.innerHTML = '<text x="200" y="110" text-anchor="middle" fill="#94a3b8" font-size="12">Cadastre superintendências</text>'; return; }
   const valores = names.map(s => filtered.filter(d=>d.sup===s).reduce((acc,d)=>acc+(Number(d.valor)||0),0));
   const maxVal = Math.max(...valores, 1);
   const w=400, h=220, padL=88, padR=16, padT=16, padB=24;
-  const chartW = w - padL - padR;
-  const chartH = h - padT - padB;
-  const gap = chartH / names.length;
-  const barH = gap * 0.55;
+  const chartW = w - padL - padR; const chartH = h - padT - padB;
+  const gap = chartH / names.length; const barH = gap * 0.55;
   const trunc = s => s.length > 14 ? s.slice(0,12) + '…' : s;
   let bars = `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#334155" stroke-width="1"/>`;
   names.forEach((s, i) => {
-    const v = valores[i];
-    const bw = (v/maxVal)*chartW;
-    const y = padT + i*gap + (gap-barH)/2;
+    const v = valores[i]; const bw = (v/maxVal)*chartW; const y = padT + i*gap + (gap-barH)/2;
     bars += `<text x="${padL-6}" y="${y+barH/2+4}" text-anchor="end" fill="#94a3b8" font-size="11">${esc(trunc(s))}</text>`;
     bars += `<rect x="${padL}" y="${y}" width="${Math.max(bw, v>0?4:0)}" height="${barH}" rx="5" fill="url(#barGrad)"/>`;
     if(v>0) bars += `<text x="${padL+bw+6}" y="${y+barH/2+4}" fill="#e2e8f0" font-size="10">${formatShortMoney(v)}</text>`;
@@ -484,367 +439,432 @@ function renderBarChart(){
   svg.innerHTML = `<defs><linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs>${bars}`;
 }
 
-function renderCharts(){
-  renderPieChart();
-  renderBarChart();
-}
+function renderCharts(){ renderPieChart(); renderBarChart(); }
 
 function faseBadge(s){
-  const map = {
-    'Concluído': 'ok',
-    'Em andamento': 'running',
-    'Atrasado': 'late',
-    'Parado': 'warn',
-    'Não iniciado': 'idle'
-  };
-  const cls = map[s] || 'idle';
-  return `<span class="badge ${cls}">${s}</span>`;
+  const map = {'Concluído': 'ok', 'Em andamento': 'running', 'Atrasado': 'late', 'Parado': 'warn', 'Não iniciado': 'idle'};
+  return `<span class="badge ${map[s] || 'idle'}">${s}</span>`;
 }
 
-function setDbStatus(ok, msg){
-  const el = $('#dbStatus');
-  el.className = 'badge ' + (ok ? 'db-ok' : 'db-err');
-  el.textContent = ok ? 'BDA conectada' : 'BDA offline';
-  el.title = msg || (ok ? 'Banco SQLite ativo' : 'Inicie python server.py');
-}
+function setDbStatus(ok, msg){ const el = $('#dbStatus'); el.className = 'badge ' + (ok ? 'db-ok' : 'db-err'); }
 
 async function api(method, path, body){
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if(body !== undefined) opts.body = JSON.stringify(body);
   const res = await fetch(API + path, opts);
-  if(res.status === 401) {
-    showLogin(); 
-    throw new Error('Não autenticado');
-  }
-  if(!res.ok){
-    let err = 'Erro na API';
-    try{ const j = await res.json(); err = j.erro || err }catch(_){}
-    throw new Error(err);
-  }
+  if(res.status === 401) { showLogin(); throw new Error('Não autenticado'); }
+  if(!res.ok){ let err = 'Erro na API'; try{ const j = await res.json(); err = j.erro || err }catch(_){} throw new Error(err); }
   if(res.status === 204) return null;
   return res.json();
 }
 
-function showLogin() {
-    $('#loginScreen').style.display = 'flex';
-    $('#appContainer').style.display = 'none';
-}
+function showLogin() { $('#loginScreen').style.display = 'flex'; $('#appContainer').style.display = 'none'; $('#forceResetScreen').style.display = 'none'; $('#recoveryEmailGroup').style.display = 'none'; }
 
 function applyPermissions() {
     const isUser = currentUserRole !== 'admin';
     $$('.admin-only').forEach(el => {
-        if(isUser) el.classList.add('hidden-role');
-        else el.classList.remove('hidden-role');
+        if(isUser) el.classList.add('hidden-role'); else el.classList.remove('hidden-role');
     });
 }
 
-// Autenticação
+// Fluxo de Autenticação
+$('#btnTogglePass').addEventListener('click', () => {
+    const input = $('#loginPass'); input.type = input.type === 'password' ? 'text' : 'password';
+});
+
+$('#btnEsqueci').addEventListener('click', () => {
+    $('#recoveryEmailGroup').style.display = 'block'; $('#recoveryEmail').value = '';
+});
+
+$('#btnCancelarReset').addEventListener('click', (e) => {
+    e.preventDefault(); $('#recoveryEmailGroup').style.display = 'none';
+});
+
+$('#btnConfirmarReset').addEventListener('click', async () => {
+    const username = $('#loginUser').value.trim(); const email = $('#recoveryEmail').value.trim();
+    if(!username || !email) { alert('Informe tanto o usuário quanto o e-mail cadastrado para verificação.'); return; }
+    try {
+        const res = await api('POST', '/solicitar-reset', { username, email });
+        alert(res.msg); $('#recoveryEmailGroup').style.display = 'none';
+    } catch(err) { alert(err.message); }
+});
+
 $('#btnLogin').addEventListener('click', async () => {
-    const username = $('#loginUser').value.trim();
-    const password = $('#loginPass').value.trim();
+    const username = $('#loginUser').value.trim(); const password = $('#loginPass').value.trim();
     if(!username || !password) return;
-    
     try {
         const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username, password})
         });
-        
         if(!res.ok) throw new Error('Credenciais inválidas');
+        const user = await res.json(); currentUserRole = user.role;
         
-        const user = await res.json();
-        currentUserRole = user.role;
-        
-        $('#loginScreen').style.display = 'none';
-        $('#appContainer').style.display = 'block';
-        $('#loginError').style.display = 'none';
-        
-        applyPermissions();
-        initData();
-    } catch(err) {
-        $('#loginError').style.display = 'block';
-    }
+        if(user.requer_reset) { $('#loginScreen').style.display = 'none'; $('#forceResetScreen').style.display = 'flex'; } 
+        else { $('#loginScreen').style.display = 'none'; $('#appContainer').style.display = 'block'; applyPermissions(); initData(); }
+    } catch(err) { $('#loginError').style.display = 'block'; }
 });
 
-$('#btnLogout').addEventListener('click', async () => {
-    await fetch('/api/logout', { method: 'POST' });
-    location.reload();
+$('#btnSaveForcedPass').addEventListener('click', async () => {
+    const p1 = $('#forcedNewPass').value.trim(); const p2 = $('#forcedNewPassConf').value.trim();
+    if(!p1) { alert("A nova senha não pode ser vazia."); return; }
+    if(p1 !== p2) { alert("As senhas informadas não coincidem."); return; }
+    try {
+        await api('POST', '/users/forcar-mudar-senha', { password: p1 });
+        alert("Senha estável cadastrada! Acesso liberado.");
+        $('#forceResetScreen').style.display = 'none'; $('#appContainer').style.display = 'block';
+        applyPermissions(); initData();
+    } catch(err) { alert(err.message); }
 });
 
-// Abertura do Modal de criação de Usuário
-$('#btnUsers').addEventListener('click', () => {
-    $('#newUser').value = '';
-    $('#newPass').value = '';
-    $('#newRole').value = 'usuario';
-    $('#modalUsers').style.display = 'flex';
+$('#btnLogout').addEventListener('click', async () => { await fetch('/api/logout', { method: 'POST' }); location.reload(); });
+
+// Gerenciamento de Usuários
+async function fetchAndCacheUsers() {
+    try {
+        systemUsers = await api('GET', '/users');
+    } catch(e) { systemUsers = []; }
+}
+
+async function carregarListaUsuarios() {
+    await fetchAndCacheUsers();
+    if(!systemUsers.length) { $('#listaUsuariosCadastrados').innerHTML = ''; return; }
+    $('#listaUsuariosCadastrados').innerHTML = systemUsers.map(u => `
+        <div style="display:flex; flex-direction:column; padding:10px 0; border-bottom:1px solid #1e293b; gap:4px; font-size:13px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><strong>${esc(u.username)}</strong> (${u.role})</span>
+                <div style="display:flex; gap:4px;">
+                    <button class="ghost" style="padding:4px 8px; font-size:11px; width:auto;" onclick="prepararEdicaoUsuario('${esc(u.username)}', '${esc(u.email)}', '${esc(u.setor)}', '${u.role}')">Editar</button>
+                    <button class="danger" style="padding:4px 8px; font-size:11px; width:auto;" onclick="excluirUsuario('${u.username}')">Excluir</button>
+                </div>
+            </div>
+            <small style="color:var(--muted)">E-mail: ${esc(u.email || 'Não cadastrado')} | Superintendência: ${esc(u.setor || 'Não vinculada')}</small>
+        </div>
+    `).join('');
+}
+
+function limparFormUsuario() {
+    isEditingUser = false; $('#newUser').value = ''; $('#newEmail').value = ''; $('#newPass').value = '';
+    if(sups.length > 0) $('#newSetor').value = sups[0].nome;
+    $('#newUser').disabled = false; $('#userModalTitle').textContent = 'Cadastrar Novo Usuário';
+    $('#passLabel').textContent = 'Senha de Acesso'; $('#passHelp').style.display = 'none';
+}
+
+function prepararEdicaoUsuario(username, email, setor, role) {
+    isEditingUser = true; $('#newUser').value = username; $('#newUser').disabled = true;
+    $('#newEmail').value = email === 'Não cadastrado' ? '' : email;
+    $('#newRole').value = role; $('#newPass').value = '';
+    const realSetor = setor === 'Não vinculada' ? '' : setor; $('#newSetor').value = realSetor;
+    $('#userModalTitle').textContent = `Editar Usuário: ${username}`;
+    $('#passLabel').textContent = 'Substituir Senha (Opcional)'; $('#passHelp').style.display = 'block';
+}
+
+async function excluirUsuario(username) {
+    if(!confirm(`Deseja realmente revogar os acessos do usuário "${username}"?`)) return;
+    try {
+        await api('DELETE', `/users/${username}`); await carregarListaUsuarios();
+        if(isEditingUser && $('#newUser').value === username) limparFormUsuario();
+        atualizarResponsaveisPorSuperintendencia();
+    } catch(err) { alert(err.message); }
+}
+
+$('#btnCancelUserEdit').addEventListener('click', (e) => { 
+    e.preventDefault(); limparFormUsuario(); $('#modalUsers').style.display = 'none'; 
+});
+
+$('#btnUsers').addEventListener('click', () => { 
+    limparFormUsuario(); $('#modalUsers').style.display = 'flex'; carregarListaUsuarios(); 
 });
 
 $('#btnCreateUser').addEventListener('click', async () => {
-    const username = $('#newUser').value.trim();
-    const password = $('#newPass').value.trim();
-    const role = $('#newRole').value;
+    const username = $('#newUser').value.trim(); const password = $('#newPass').value.trim();
+    const email = $('#newEmail').value.trim(); const setor = $('#newSetor').value; const role = $('#newRole').value;
     
-    if(!username || !password) {
-        alert("Preencha usuário e senha."); return;
-    }
+    if(!username) { alert("O nome de usuário é obrigatório."); return; }
+    if(!setor) { alert("Vincule o usuário a uma superintendência institucional válida."); return; }
+    if(!isEditingUser && !password) { alert("A senha é obrigatória para novas contas."); return; }
     
     try {
-        await api('POST', '/users', { username, password, role });
-        alert("Usuário criado com sucesso!");
-        $('#modalUsers').style.display = 'none';
-    } catch(err) {
-        alert(err.message);
-    }
+        await api('POST', '/users', { username, password, email, setor, role, is_edit: isEditingUser });
+        alert(isEditingUser ? "Usuário atualizado com sucesso!" : "Novo usuário cadastrado com sucesso!");
+        limparFormUsuario(); $('#modalUsers').style.display = 'none';
+        await fetchAndCacheUsers(); 
+        atualizarResponsaveisPorSuperintendencia(); 
+    } catch(err) { alert(err.message); }
 });
 
-async function loadData(){
-  try{
-    data = await api('GET', '/acoes');
-    setDbStatus(true);
-    applyFilters();
-  }catch(e){
-    data = [];
-    setDbStatus(false, e.message);
-  }
+// Alertas de Reset
+async function checarAlertas() {
+    if (currentUserRole !== 'admin') return;
+    try {
+        const alertas = await api('GET', '/alertas-reset');
+        if(alertas.length > 0) {
+            $('#btnAlertas').style.display = 'inline-flex'; $('#alertCount').textContent = alertas.length;
+            $('#listaAlertasPnd').innerHTML = alertas.map(a => `
+                <div style="display:flex; flex-direction:column; padding:10px 0; border-bottom:1px solid #1e293b; gap:6px; font-size:13px;">
+                    <div>Solicitante validado: <strong>${esc(a.username)}</strong></div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <input type="text" id="tmpPass_${a.id}" placeholder="Nova senha provisória" style="padding:6px; font-size:12px; flex:1;" />
+                        <button class="primary" style="padding:4px 8px; font-size:12px; width:auto;" onclick="aplicarMudarSenhaAdmin(${a.id}, '${esc(a.username)}')">Forçar Alteração</button>
+                    </div>
+                </div>
+            `).join('');
+        } else { $('#btnAlertas').style.display = 'none'; }
+    } catch(e) {}
 }
 
+async function aplicarMudarSenhaAdmin(alertaId, username) {
+    const inputPass = $(`#tmpPass_${alertaId}`).value.trim();
+    if(!inputPass) { alert("Defina a senha temporária."); return; }
+    try {
+        const res = await api('POST', '/alertas-reset/processar', { id: alertaId, username: username, password: inputPass });
+        alert(res.msg); $('#modalAlertas').style.display = 'none'; checarAlertas();
+    } catch(err) { alert(err.message); }
+}
+
+$('#btnAlertas').addEventListener('click', () => $('#modalAlertas').style.display = 'flex');
+
+async function loadData(){ try{ data = await api('GET', '/acoes'); setDbStatus(true); applyFilters(); }catch(e) { data = []; } }
+
 function getSupNames(){
-  const set = new Set(sups.map(s => s.nome));
-  filtered.forEach(d => { if(d.sup) set.add(d.sup) });
+  const set = new Set(sups.map(s => s.nome)); filtered.forEach(d => { if(d.sup) set.add(d.sup) });
   return [...set].sort((a,b) => a.localeCompare(b, 'pt-BR'));
 }
 
+function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue) {
+    const supSelecionada = $('#f_sup').value ? $('#f_sup').value.trim().toLowerCase() : "";
+    const respSelectEl = $('#f_responsavel');
+    const valorAtualAnterior = selectedResponsavelValue !== undefined ? selectedResponsavelValue : respSelectEl.value;
+    
+    if(!supSelecionada) {
+        respSelectEl.innerHTML = '<option value="">— Selecione uma superintendência primeiro —</option>';
+        return;
+    }
+    
+    const usuariosFiltrados = systemUsers.filter(u => String(u.setor || '').trim().toLowerCase() === supSelecionada);
+    
+    if(!usuariosFiltrados.length) {
+        respSelectEl.innerHTML = `<option value="${valorAtualAnterior || 'administrator'}">${valorAtualAnterior || 'administrator (Padrão)'}</option><option value="administrator">administrator</option>`;
+        return;
+    }
+    
+    let html = usuariosFiltrados.map(u => `<option value="${esc(u.username)}"${u.username === valorAtualAnterior ? ' selected':''}>${esc(u.username)}</option>`).join('');
+    
+    if(valorAtualAnterior && !usuariosFiltrados.some(u => u.username === valorAtualAnterior)) {
+        html = `<option value="${esc(valorAtualAnterior)}" selected>${esc(valorAtualAnterior)}</option>` + html;
+    }
+    
+    respSelectEl.innerHTML = html;
+}
+
+$('#f_sup').addEventListener('change', () => atualizarResponsaveisPorSuperintendencia());
+
+// NOVO: Lógica visual e de controle para gerenciamento de checkboxes
+function handleRowCheckboxChange(id, isChecked) {
+    if(isChecked) {
+        checkedIds.add(id);
+        $(`#row_${id}`).classList.add('selected-row');
+    } else {
+        checkedIds.delete(id);
+        $(`#row_${id}`).classList.remove('selected-row');
+    }
+    atualizarBotaoExcluirLote();
+}
+
+function atualizarBotaoExcluirLote() {
+    const btn = $('#btnExcluirLote');
+    if(currentUserRole === 'admin' && checkedIds.size > 0) {
+        btn.style.display = 'inline-flex';
+        $('#selectedCount').textContent = checkedIds.size;
+    } else {
+        btn.style.display = 'none';
+    }
+}
+
+// Gatilho do cabeçalho mestre para marcar/desmarcar todos da página corrente
+$('#selectAllRows').addEventListener('change', (e) => {
+    const isChecked = e.target.checked;
+    const inputs = $$('tbody input[type="checkbox"].row-selector');
+    inputs.forEach(input => {
+        input.checked = isChecked;
+        const id = parseInt(input.dataset.id);
+        if(isChecked) {
+            checkedIds.add(id);
+            $(`#row_${id}`).classList.add('selected-row');
+        } else {
+            checkedIds.delete(id);
+            $(`#row_${id}`).classList.remove('selected-row');
+        }
+    });
+    atualizarBotaoExcluirLote();
+});
+
+// Execução da requisição de limpeza massiva em lote
+$('#btnExcluirLote').addEventListener('click', async () => {
+    if(checkedIds.size === 0) return;
+    if(!confirm(`Atenção: Você selecionou ${checkedIds.size} demandas. Deseja excluir todas permanentemente do banco de dados?`)) return;
+    
+    try {
+        const listaIds = Array.from(checkedIds);
+        const res = await api('POST', '/acoes/excluir-lote', { ids: listaIds });
+        alert(res.msg);
+        
+        checkedIds.clear();
+        $('#selectAllRows').checked = false;
+        atualizarBotaoExcluirLote();
+        await loadData();
+    } catch(err) {
+        alert("Falha na exclusão massiva: " + err.message);
+    }
+});
+
 function renderSupSelects(selectedFilter, selectedForm){
   const names = sups.map(s => s.nome).sort((a,b) => a.localeCompare(b, 'pt-BR'));
-  const filterEl = $('#filterSup');
-  const curFilter = selectedFilter !== undefined ? selectedFilter : filterEl.value;
-  filterEl.innerHTML = '<option value="">Superintendência (todas)</option>' +
-    names.map(n => `<option value="${esc(n)}"${n===curFilter?' selected':''}>${esc(n)}</option>`).join('');
+  
+  const filterEl = $('#filterSup'); const curFilter = selectedFilter !== undefined ? selectedFilter : filterEl.value;
+  filterEl.innerHTML = '<option value="">Superintendência (todas)</option>' + names.map(n => `<option value="${esc(n)}"${n===curFilter?' selected':''}>${esc(n)}</option>`).join('');
 
-  const formEl = $('#f_sup');
-  const curForm = selectedForm !== undefined ? selectedForm : formEl.value;
-  if(!names.length){
-    formEl.innerHTML = '<option value="">— Cadastre uma superintendência —</option>';
-  } else {
+  const formEl = $('#f_sup'); const curForm = selectedForm !== undefined ? selectedForm : formEl.value;
+  if(!names.length){ formEl.innerHTML = '<option value="">— Cadastre uma superintendência —</option>'; } 
+  else {
     let html = names.map(n => `<option value="${esc(n)}"${n===curForm?' selected':''}>${esc(n)}</option>`).join('');
-    if(curForm && !names.includes(curForm)){
-      html += `<option value="${esc(curForm)}" selected>${esc(curForm)}</option>`;
-    }
+    if(curForm && !names.includes(curForm)){ html += `<option value="${esc(curForm)}" selected>${esc(curForm)}</option>`; }
     formEl.innerHTML = html;
+  }
+
+  const userFormSetorEl = $('#newSetor');
+  if(userFormSetorEl) {
+      if(!names.length) { userFormSetorEl.innerHTML = '<option value="">— Nenhuma superintendência ativa —</option>'; }
+      else { userFormSetorEl.innerHTML = names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join(''); }
   }
 }
 
 function renderSupList(){
-  const el = $('#supList');
-  if(!sups.length){
-    el.innerHTML = '<p style="color:var(--muted);margin:0">Nenhuma cadastrada. Adicione acima.</p>';
-    return;
-  }
+  const el = $('#supList'); if(!sups.length){ el.innerHTML = '<p style="color:var(--muted);margin:0">Nenhuma cadastrada.</p>'; return; }
   el.innerHTML = sups.map(s => `
     <div class="sup-row">
       <span class="sup-nome">${esc(s.nome)}</span>
-      <div class="sup-actions">
-        <button type="button" class="ghost" data-rename="${s.id}">Renomear</button>
-        <button type="button" class="danger" data-del="${s.id}">Excluir</button>
-      </div>
+      <div class="sup-actions"><button type="button" class="ghost" style="width:auto;" data-rename="${s.id}">Renomear</button><button type="button" class="danger" style="width:auto;" data-del="${s.id}">Excluir</button></div>
     </div>
   `).join('');
 }
 
-async function loadSups(){
-  try{
-    sups = await api('GET', '/superintendencias');
-  }catch(e){
-    sups = [];
-  }
-  renderSupSelects();
-  renderSupList();
-}
+async function loadSups(){ try{ sups = await api('GET', '/superintendencias'); }catch(e){ sups = []; } renderSupSelects(); renderSupList(); }
 
-function openSupModal(){
-  $('#newSupNome').value = '';
-  renderSupList();
-  $('#modalSup').style.display = 'flex';
-}
+function openSupModal(){ $('#newSupNome').value = ''; renderSupList(); $('#modalSup').style.display = 'flex'; }
 
 async function addSup(){
-  const nome = $('#newSupNome').value.trim();
-  if(!nome){ alert('Informe o nome da superintendência.'); return }
-  try{
-    await api('POST', '/superintendencias', { nome });
-    await loadSups();
-    await loadData();
-    applyFilters();
-    $('#newSupNome').value = '';
-  }catch(e){ alert('Erro: ' + e.message) }
+  const nome = $('#newSupNome').value.trim(); if(!nome){ alert('Informe o nome.'); return }
+  try{ await api('POST', '/superintendencias', { nome }); await loadSups(); await loadData(); applyFilters(); $('#newSupNome').value = ''; }catch(e){ alert('Erro: ' + e.message) }
 }
 
 async function renameSup(id){
-  const s = sups.find(x => x.id === id);
-  if(!s) return;
-  const nome = prompt('Novo nome:', s.nome);
-  if(nome === null) return;
-  const trimmed = nome.trim();
-  if(!trimmed){ alert('Nome não pode ser vazio.'); return }
-  try{
-    await api('PUT', '/superintendencias/' + id, { nome: trimmed });
-    await loadSups();
-    await loadData();
-    applyFilters();
-  }catch(e){ alert('Erro: ' + e.message) }
+  const s = sups.find(x => x.id === id); if(!s) return; const nome = prompt('Novo nome:', s.nome); if(nome === null) return;
+  const trimmed = nome.trim(); if(!trimmed){ alert('Nome vazio.'); return }
+  try{ await api('PUT', '/superintendencias/' + id, { nome: trimmed }); await loadSups(); await loadData(); applyFilters(); }catch(e){ alert('Erro: ' + e.message) }
 }
 
 async function deleteSup(id){
-  const s = sups.find(x => x.id === id);
-  if(!s) return;
-  if(!confirm(`Excluir "${s.nome}"?`)) return;
-  try{
-    await api('DELETE', '/superintendencias/' + id);
-    await loadSups();
-    applyFilters();
-  }catch(e){ alert('Erro: ' + e.message) }
+  const s = sups.find(x => x.id === id); if(!s) return; if(!confirm(`Excluir "${s.nome}"?`)) return;
+  try{ await api('DELETE', '/superintendencias/' + id); await loadSups(); applyFilters(); }catch(e){ alert('Erro: ' + e.message) }
 }
 
 function applyFilters(){
-  const q = $('#search').value.trim().toLowerCase();
-  const fase = $('#filterFase').value;
-  const sup = $('#filterSup').value;
+  const q = $('#search').value.trim().toLowerCase(); const fase = $('#filterFase').value; const sup = $('#filterSup').value;
   filtered = data.filter(d=>{
-    const matchesQ = !q || [d.nome,d.desc,d.prox].some(v=>String(v||'').toLowerCase().includes(q));
-    const matchesF = !fase || d.fase===fase;
-    const matchesS = !sup || d.sup===sup;
+    const matchesQ = !q || [d.nome,d.desc,d.prox,d.responsavel].some(v=>String(v||'').toLowerCase().includes(q));
+    const matchesF = !fase || d.fase===fase; const matchesS = !sup || d.sup===sup;
     return matchesQ && matchesF && matchesS;
-  });
-  page = 1;
-  render();
+  }); page = 1; render();
 }
 
 function render(){
-  // KPIs
   $('#kpiTotal').textContent = filtered.length;
   $('#kpiAnd').textContent = filtered.filter(d=>d.fase==='Em andamento').length;
   $('#kpiAtr').textContent = filtered.filter(d=>d.fase==='Atrasado').length;
   $('#kpiConc').textContent = filtered.filter(d=>d.fase==='Concluído').length;
-  const totalValor = filtered.reduce((s,d)=>s+(Number(d.valor)||0),0);
-  $('#kpiValor').textContent = money(totalValor);
+  $('#kpiValor').textContent = money(filtered.reduce((s,d)=>s+(Number(d.valor)||0),0));
 
-  // Tabela
-  pageSize = Number($('#pageSize').value);
-  const start = (page-1)*pageSize;
-  const rows = filtered.slice(start, start+pageSize);
+  pageSize = Number($('#pageSize').value); const start = (page-1)*pageSize; const rows = filtered.slice(start, start+pageSize);
   const tbody = document.querySelector('#tbl tbody');
-  if(!rows.length){
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">Nenhum registro. Clique em <strong>Novo Registro</strong> ou importe um CSV/JSON.</td></tr>`;
-  } else {
-    tbody.innerHTML = rows.map(d=>`<tr>
-      <td data-label="Programa / Ação / Projeto">${esc(d.nome)}</td>
-      <td data-label="Descrição">${esc(d.desc)}</td>
-      <td data-label="Superintendência">${esc(d.sup)}</td>
-      <td data-label="Valor (R$)">${money(d.valor)}</td>
-      <td data-label="Fase">${faseBadge(d.fase||'')}</td>
-      <td data-label="Próxima etapa">${esc(d.prox)}</td>
-      <td data-label="Prazo para conclusão">${d.prazo? new Date(d.prazo+'T12:00:00').toLocaleDateString('pt-BR'):''}</td>
-      <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}" data-label="Ações">
-        <button onclick="editRow(${d.id})">Editar</button>
-        <button class="danger" onclick="delRow(${d.id})">Excluir</button>
-      </td>
-    </tr>`).join('');
+  
+  // Reseta o cabeçalho mestre ao trocar de página ou aplicar filtros
+  $('#selectAllRows').checked = false;
+
+  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px">Nenhum registro encontrado.</td></tr>`; } 
+  else {
+    tbody.innerHTML = rows.map(d=>{
+      const isRowChecked = checkedIds.has(d.id);
+      return `<tr id="row_${d.id}" class="${isRowChecked ? 'selected-row' : ''}">
+        <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}" style="text-align: center;">
+          <input type="checkbox" class="row-selector" data-id="${d.id}" ${isRowChecked ? 'checked' : ''} onchange="handleRowCheckboxChange(${d.id}, this.checked)" />
+        </td>
+        <td><strong>${esc(d.nome)}</strong></td>
+        <td>${esc(d.desc)}</td>
+        <td>${esc(d.sup)}</td>
+        <td><span style="color:var(--accent-2)">${esc(d.responsavel || 'Não definido')}</span></td>
+        <td>${money(d.valor)}</td>
+        <td>${faseBadge(d.fase||'')}</td>
+        <td>${esc(d.prox)}</td>
+        <td>${d.prazo? new Date(d.prazo+'T12:00:00').toLocaleDateString('pt-BR'):''}</td>
+        <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}">
+          <button onclick="editRow(${d.id})">Editar</button>
+          <button class="danger" onclick="delRow(${d.id})">Excluir</button>
+        </td>
+      </tr>`}).join('');
   }
-
-  // Paginação
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  $('#pageInfo').textContent = `Página ${Math.min(page,pages)}/${pages}`;
-
-  renderCharts();
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize)); $('#pageInfo').textContent = `Página ${Math.min(page,pages)}/${pages}`;
+  renderCharts(); checarAlertas();
 }
 
-function esc(s){
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function editRow(id){
-  editingId = id;
-  const d = data.find(x => x.id === id);
-  if(!d) return;
+  editingId = id; const d = data.find(x => x.id === id); if(!d) return;
   renderSupSelects(undefined, d.sup||'');
-  $('#f_nome').value = d.nome||'';
-  $('#f_sup').value = d.sup||'';
-  $('#f_desc').value = d.desc||'';
-  $('#f_valor').value = d.valor||0;
-  $('#f_fase').value = d.fase||'Não iniciado';
-  $('#f_prox').value = d.prox||'';
-  $('#f_prazo').value = d.prazo||'';
+  $('#f_nome').value = d.nome||''; $('#f_sup').value = d.sup||''; $('#f_desc').value = d.desc||'';
+  $('#f_valor').value = d.valor||0; $('#f_fase').value = d.fase||'Não iniciado'; $('#f_prox').value = d.prox||''; $('#f_prazo').value = d.prazo||'';
+  
+  atualizarResponsaveisPorSuperintendencia(d.responsavel);
   $('#modal').style.display='flex';
 }
 
 function clearModal(){
-  editingId = null;
-  $('#f_nome').value='';
-  $('#f_sup').value='';
-  $('#f_desc').value='';
-  $('#f_valor').value='';
-  $('#f_fase').value='Não iniciado';
-  $('#f_prox').value='';
-  $('#f_prazo').value='';
+  editingId = null; $('#f_nome').value=''; $('#f_sup').value=''; $('#f_desc').value='';
+  $('#f_valor').value=''; $('#f_fase').value='Não iniciado'; $('#f_prox').value=''; $('#f_prazo').value='';
+  atualizarResponsaveisPorSuperintendencia(); 
 }
 
-function addRow(){
-  clearModal();
-  renderSupSelects();
-  $('#modal').style.display='flex';
-}
+function addRow(){ clearModal(); renderSupSelects(); $('#modal').style.display='flex'; }
 
 async function saveRow(){
   const d = {
-    nome: $('#f_nome').value.trim(),
-    sup: $('#f_sup').value,
-    desc: $('#f_desc').value.trim(),
-    valor: parseFloat($('#f_valor').value||'0'),
-    fase: $('#f_fase').value,
-    prox: $('#f_prox').value.trim(),
-    prazo: $('#f_prazo').value
+    nome: $('#f_nome').value.trim(), sup: $('#f_sup').value, desc: $('#f_desc').value.trim(),
+    responsavel: $('#f_responsavel').value, valor: parseFloat($('#f_valor').value||'0'),
+    fase: $('#f_fase').value, prox: $('#f_prox').value.trim(), prazo: $('#f_prazo').value
   };
-  if(!d.sup){
-    alert('Selecione uma superintendência. Cadastre em "Superintendências" se necessário.');
-    return;
-  }
+  if(!d.sup){ alert('Selecione uma superintendência.'); return; }
   try{
-    if(editingId === null) await api('POST', '/acoes', d);
-    else await api('PUT', '/acoes/' + editingId, d);
-    await loadData();
-    await loadSups();
-    applyFilters();
-    $('#modal').style.display='none';
+    if(editingId === null) await api('POST', '/acoes', d); else await api('PUT', '/acoes/' + editingId, d);
+    await loadData(); $('#modal').style.display='none';
   }catch(e){ alert('Erro ao salvar: ' + e.message) }
 }
 
-async function delRow(id){
-  if(!confirm('Excluir este registro?')) return;
-  try{
-    await api('DELETE', '/acoes/' + id);
-    await loadData();
-    applyFilters();
-  }catch(e){ alert('Erro ao excluir: ' + e.message) }
-}
-
-function paginate(dir){
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  page = Math.min(pages, Math.max(1, page+dir));
-  render();
+async function delRow(id){ 
+    if(!confirm('Excluir este registro?')) return; 
+    try{ 
+        await api('DELETE', '/acoes/' + id); 
+        checkedIds.delete(id); // Limpa o ID do rastreio caso ele seja excluído individualmente
+        atualizarBotaoExcluirLote();
+        await loadData(); 
+    }catch(e){ alert('Erro: ' + e.message) } 
 }
 
 function exportCSV(){
-  const headers = ['nome','desc','sup','valor','fase','prox','prazo'];
-  const rows = [headers.join(',')].concat(data.map(d=>headers.map(h=>{
-    const v = (d[h]??'').toString().replace(/"/g,'""');
-    return `"${v}"`;
-  }).join(',')));
+  const headers = ['nome','desc','sup','responsavel','valor','fase','prox','prazo'];
+  const rows = [headers.join(',')].concat(data.map(d=>headers.map(h=>{ const v = (d[h]??'').toString().replace(/"/g,'""'); return `"${v}"`; }).join(',')));
   const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'seaf_monitor.csv';
-  a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'seaf_monitor.csv'; a.click();
 }
 
 function importFile(file){
@@ -852,164 +872,84 @@ function importFile(file){
   reader.onload = async e => {
     const text = e.target.result;
     try {
-      let arr;
-      if(file.name.endsWith('.json')){
-        arr = JSON.parse(text);
-      } else {
-        arr = parseCSV(text);
-      }
+      let arr = file.name.endsWith('.json') ? JSON.parse(text) : parseCSV(text);
       if(!Array.isArray(arr)) throw new Error('Formato inválido');
       const payload = arr.map(r=>({
-        nome: r.nome || r['Programa / Ação / Projeto'] || r['programa'] || r['ação'] || r['projeto'] || r['programa/ação/projeto'] || '',
-        desc: r.desc || r['Descrição'] || r['descricao'] || '',
-        sup: r.sup || r['Superintendência'] || r['superintendência'] || r['superintendencia'] || '',
-        valor: Number(r.valor || r['Valor'] || r['Valor (R$)'] || 0),
-        fase: r.fase || r['Fase'] || 'Não iniciado',
-        prox: r.prox || r['Próxima etapa'] || r['proxima_etapa'] || '',
-        prazo: r.prazo || r['Prazo para conclusão'] || r['prazo'] || ''
+        nome: r.nome || r['Programa / Ação / Projeto'] || '', desc: r.desc || r['Descrição'] || '', sup: r.sup || r['Superintendência'] || '',
+        responsavel: r.responsavel || r['Responsável'] || '', valor: Number(r.valor || r['Valor (R$)'] || 0),
+        fase: r.fase || r['Fase'] || 'Não iniciado', prox: r.prox || r['Próxima etapa'] || '', prazo: r.prazo || r['Prazo para conclusão'] || ''
       }));
-      const res = await api('POST', '/acoes/importar', payload);
-      data = res.acoes;
-      await loadSups();
-      setDbStatus(true);
-      applyFilters();
-      alert(`Importação concluída! ${res.importados} registro(s) no banco.`);
-    } catch(err){
-      alert('Falha na importação: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
+      const res = await api('POST', '/acoes/importar', payload); data = res.acoes; await loadSups(); applyFilters(); alert("Importação concluída!");
+    } catch(err){ alert('Falha: ' + err.message); }
+  }; reader.readAsText(file);
 }
 
 function parseCSV(text){
-  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
-  if(lines.length===0) return [];
-  const headers = splitCSVLine(lines[0]).map(h=>h.trim().replace(/^"|"$/g,''));
-  const arr = [];
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length); if(lines.length===0) return [];
+  const headers = splitCSVLine(lines[0]).map(h=>h.trim().replace(/^"|"$/g,'')); const arr = [];
   for(let i=1;i<lines.length;i++){
-    const cols = splitCSVLine(lines[i]).map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"'));
-    const obj = {};
-    headers.forEach((h,idx)=>obj[h]=cols[idx] ?? '');
-    arr.push(obj);
-  }
-  return arr;
+    const cols = splitCSVLine(lines[i]).map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"')); const obj = {};
+    headers.forEach((h,idx)=>obj[h]=cols[idx] ?? ''); arr.push(obj);
+  } return arr;
 }
 function splitCSVLine(line){
   const out=[]; let cur=''; let q=false;
   for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch==='"' && (i===0 || line[i-1]!=='\\')){ q=!q; cur+=ch; }
-    else if(ch===',' && !q){ out.push(cur); cur=''; }
-    else{ cur+=ch; }
-  }
-  out.push(cur);
-  return out;
+    const ch=line[i]; if(ch==='"' && (i===0 || line[i-1]!=='\\')){ q=!q; cur+=ch; } else if(ch===',' && !q){ out.push(cur); cur=''; } else{ cur+=ch; }
+  } out.push(cur); return out;
 }
 
 function clockTick(){
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
+  const now = new Date(); const pad = n => String(n).padStart(2,'0');
   const t = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  document.getElementById('clock').textContent = t;
-  const clockTV = document.getElementById('clockTV');
-  if(clockTV) clockTV.textContent = t;
+  document.getElementById('clock').textContent = t; if($('#clockTV')) $('#clockTV').textContent = t;
 }
 setInterval(clockTick, 1000);
 
-function updateTVButton(){
-  const btn = $('#btnTV');
-  btn.textContent = tvMode ? 'Sair do Modo TV' : 'Modo TV';
-  btn.classList.toggle('warn', tvMode);
-  btn.classList.toggle('ghost', !tvMode);
-}
-
 function setTVMode(on){
-  tvMode = on;
-  document.body.classList.toggle('tv-on', tvMode);
-  updateTVButton();
-  if(tvMode){
-    tvTimer = setInterval(()=>{
-      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-      page = page % pages + 1;
-      render();
-    }, 15000);
-  } else {
-    clearInterval(tvTimer);
-    tvTimer = null;
-  }
+  tvMode = on; document.body.classList.toggle('tv-on', tvMode); $('#btnTV').textContent = tvMode ? 'Sair do Modo TV' : 'Modo TV';
+  if(tvMode){ tvTimer = setInterval(()=>{ const pages = Math.max(1, Math.ceil(filtered.length / pageSize)); page = page % pages + 1; render(); }, 15000); } 
+  else { clearInterval(tvTimer); tvTimer = null; }
 }
 
-function toggleTV(){
-  setTVMode(!tvMode);
-}
-function goFull(){
-  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
-  else document.exitFullscreen();
-}
+function goFull(){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
-// Eventos
+// Vinculação Unificada de Eventos do Sistema
 document.getElementById('search').addEventListener('input', applyFilters);
 document.getElementById('filterFase').addEventListener('change', applyFilters);
 document.getElementById('filterSup').addEventListener('change', applyFilters);
-document.getElementById('clearFilters').addEventListener('click', ()=>{
-  document.getElementById('search').value='';
-  document.getElementById('filterFase').value='';
-  document.getElementById('filterSup').value='';
-  applyFilters();
-});
+document.getElementById('clearFilters').addEventListener('click', ()=>{ $('#search').value=''; $('#filterFase').value=''; $('#filterSup').value=''; applyFilters(); });
 document.getElementById('btnExport').addEventListener('click', exportCSV);
 document.getElementById('btnImport').addEventListener('click', ()=>document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change', e=>{
-  if(e.target.files[0]) importFile(e.target.files[0]);
-  e.target.value = '';
-});
+document.getElementById('fileInput').addEventListener('change', e=>{ if(e.target.files[0]) importFile(e.target.files[0]); e.target.value = ''; });
 document.getElementById('btnAdd').addEventListener('click', addRow);
 document.getElementById('btnSups').addEventListener('click', openSupModal);
 document.getElementById('btnAddSup').addEventListener('click', addSup);
-document.getElementById('newSupNome').addEventListener('keydown', e=>{
-  if(e.key === 'Enter') addSup();
-});
 document.getElementById('closeSup').addEventListener('click', ()=> $('#modalSup').style.display='none');
 document.getElementById('supList').addEventListener('click', e=>{
-  const rename = e.target.closest('[data-rename]');
-  const del = e.target.closest('[data-del]');
-  if(rename) renameSup(Number(rename.dataset.rename));
-  if(del) deleteSup(Number(del.dataset.del));
+  const rename = e.target.closest('[data-rename]'); const del = e.target.closest('[data-del]');
+  if(rename) renameSup(Number(rename.dataset.rename)); if(del) deleteSup(Number(del.dataset.del));
 });
 document.getElementById('save').addEventListener('click', saveRow);
 document.getElementById('cancel').addEventListener('click', ()=>$('#modal').style.display='none');
 document.getElementById('prev').addEventListener('click', ()=>{ page=Math.max(1,page-1); render() });
-document.getElementById('next').addEventListener('click', ()=>{ const pages=Math.max(1,Math.ceil(filtered.length/Number(document.getElementById('pageSize').value))); page=Math.min(pages,page+1); render() });
+document.getElementById('next').addEventListener('click', ()=>{ const pages=Math.max(1,Math.ceil(filtered.length/Number($('#pageSize').value))); page=Math.min(pages,page+1); render() });
 document.getElementById('pageSize').addEventListener('change', ()=>{ page=1; render() });
-document.getElementById('btnTV').addEventListener('click', toggleTV);
+document.getElementById('btnTV').addEventListener('click', () => setTVMode(!tvMode));
 document.getElementById('btnExitTV').addEventListener('click', ()=> setTVMode(false));
 document.getElementById('btnFull').addEventListener('click', goFull);
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape' && tvMode) setTVMode(false);
-});
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && tvMode) setTVMode(false); });
 
 async function initAuth(){
   try {
-    const res = await fetch('/api/me');
-    if(!res.ok) throw new Error('Não logado');
-    const user = await res.json();
-    currentUserRole = user.role;
-    $('#loginScreen').style.display = 'none';
-    $('#appContainer').style.display = 'block';
-    
-    applyPermissions();
-    initData();
-  } catch(e) {
-    showLogin();
-  }
+    const res = await fetch('/api/me'); if(!res.ok) throw new Error('Não logado');
+    const user = await res.json(); currentUserRole = user.role;
+    if(user.requer_reset) { $('#forceResetScreen').style.display = 'flex'; } 
+    else { $('#loginScreen').style.display = 'none'; $('#appContainer').style.display = 'block'; applyPermissions(); initData(); }
+  } catch(e) { showLogin(); }
 }
 
-async function initData() {
-    await loadData();
-    await loadSups(); 
-    clockTick();
-}
-
+async function initData() { await loadData(); await loadSups(); clockTick(); }
 initAuth();
 </script>
 </body>
