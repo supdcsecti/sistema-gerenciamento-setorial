@@ -52,7 +52,16 @@ def init_db():
                 nome TEXT NOT NULL UNIQUE,
                 criado_em TEXT NOT NULL
             );
-
+            
+            CREATE TABLE IF NOT EXISTS comentarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                acao_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                texto TEXT NOT NULL,
+                criado_em TEXT NOT NULL,
+                FOREIGN KEY (acao_id) REFERENCES acoes (id) ON DELETE CASCADE
+            );
+            
             CREATE TABLE IF NOT EXISTS solicitacoes_reset (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,

@@ -90,7 +90,6 @@ tbody td{
 tbody tr:hover{ background:#1e293b }
 tbody tr.selected-row { background: rgba(37, 99, 235, 0.15) !important; }
 
-/* Estilização customizada para a caixas de seleção quadradas */
 input[type="checkbox"].row-selector {
   width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);
 }
@@ -130,6 +129,13 @@ input[type="checkbox"].row-selector {
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-size: 13px; color: var(--muted); font-weight: 500; text-align: left; }
 .hidden-role { display: none !important; }
+
+/* Estilização da área de comentários */
+.comentarios-container { border-top: 1px dashed #334155; margin-top: 20px; padding-top: 16px; text-align: left; }
+.comentarios-list { max-height: 180px; overflow-y: auto; background: #0a1226; border-radius: 8px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #1e293b; }
+.comentario-item { font-size: 13px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; }
+.comentario-item:last-child { border-bottom: none; }
+.comentario-meta { color: var(--accent-2); font-weight: bold; font-size: 11px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
@@ -218,6 +224,7 @@ input[type="checkbox"].row-selector {
         <button id="btnAlertas" class="warn admin-only" style="display: none;">⚠️ Alertas Reset (<span id="alertCount">0</span>)</button>
         <button id="btnSups" class="ghost admin-only">Superintendências</button>
         <button id="btnUsers" class="ghost admin-only">Usuários</button>
+        <button id="btnMudarMinhaSenha" class="warn">🔑 Alterar Senha</button>
         <button id="clearFilters" class="ghost">Limpar</button>
         <label class="file admin-only" style="width:auto; padding:0; background:transparent; border:none; box-shadow:none;">
           <input id="fileInput" type="file" accept=".csv,.json" hidden />
@@ -231,7 +238,7 @@ input[type="checkbox"].row-selector {
         <button id="btnTV" title="Alternar Modo TV">Modo TV</button>
         <button id="btnFull" class="ghost">Tela cheia</button>
         <button id="btnLogout" class="danger">Sair</button>
-        <span class="badge db-ok" id="dbStatus">BDA conectada</span>
+        <span class="badge db-ok" id="dbStatus">Banco de Dados Conectado</span>
         <div class="clock" id="clock">--:--:--</div>
       </div>
     </div>
@@ -253,7 +260,7 @@ input[type="checkbox"].row-selector {
         </div>
       </div>
       <div class="card chart-card">
-        <h3>Valor porBox superintendência (R$)</h3>
+        <h3>Valor por Box superintendência (R$)</h3>
         <div class="chart-wrap">
           <svg id="chartBar" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet"></svg>
         </div>
@@ -273,7 +280,7 @@ input[type="checkbox"].row-selector {
             <th>Fase</th>
             <th>Próxima etapa</th>
             <th>Prazo para conclusão</th>
-            <th class="admin-only">Ações</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -297,7 +304,7 @@ input[type="checkbox"].row-selector {
   </div>
 
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
-  <div class="card" style="width:min(920px, 96vw); max-height:90vh; overflow:auto; padding:24px; background:var(--panel);">
+  <div class="card" style="width:min(920px, 96vw); max-height:95vh; overflow:auto; padding:24px; background:var(--panel);">
     <h3 style="margin:0 0 20px 0; font-size:1.5rem; border-bottom:1px solid #1e293b; padding-bottom:12px;">Dados do Registro</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       <div class="form-group"><label>Programa / Ação / Projeto</label><input id="f_nome" type="text" /></div>
@@ -309,8 +316,39 @@ input[type="checkbox"].row-selector {
       <div class="form-group"><label>Próxima etapa</label><input id="f_prox" type="text" /></div>
       <div class="form-group"><label>Prazo para conclusão</label><input id="f_prazo" type="date" /></div>
     </div>
+
+    <!-- Container Dinâmico de Histórico de Comentários para Usuários e Admins -->
+    <div class="comentarios-container" id="f_comentarios_bloco" style="display: none;">
+      <label style="font-size: 13px; color: var(--muted); font-weight: 500; display: block; margin-bottom: 6px;">Histórico de Observações e Comentários</label>
+      <div class="comentarios-list" id="listaComentariosDemanda"></div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="newComentarioTexto" placeholder="Escreva uma nova nota ou atualização sobre esta demanda..." style="flex: 1;" />
+        <button id="btnPostarComentario" class="primary" style="width: auto; padding: 10px 16px;">Enviar</button>
+      </div>
+    </div>
+
     <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid #1e293b;">
-      <button id="cancel" class="ghost" style="width:auto;">Cancelar</button><button id="save" class="primary" style="width:auto;">Salvar Registro</button>
+      <button id="cancel" class="ghost" style="width:auto;">Fechar</button>
+      <button id="save" class="primary admin-only" style="width:auto;">Salvar Registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para alteração voluntária de senha (Usuários comuns e Administrator) -->
+<div id="modalMudarSenha" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(4px);">
+  <div class="card" style="width:360px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+    <h3 style="margin:0; border-bottom:1px solid #1e293b; padding-bottom:8px;">Segurança: Alterar Senha</h3>
+    <div class="form-group">
+      <label>Senha Atual</label>
+      <input id="pwdAtualSelf" type="password" placeholder="Digite sua senha vigente" />
+    </div>
+    <div class="form-group">
+      <label>Nova Senha</label>
+      <input id="pwdNovaSelf" type="password" placeholder="Nova senha estável" />
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+      <button class="ghost" onclick="document.getElementById('modalMudarSenha').style.display='none'" style="width:auto;">Cancelar</button>
+      <button id="btnConfirmarMudarSenhaSelf" class="primary" style="width:auto;">Atualizar Senha</button>
     </div>
   </div>
 </div>
@@ -386,7 +424,7 @@ let sups = [];
 let systemUsers = []; 
 let currentUserRole = null; 
 let isEditingUser = false;
-let checkedIds = new Set(); // NOVO: Armazena os IDs das demandas selecionadas para exclusão em bloco
+let checkedIds = new Set(); 
 
 const money = n => (Number(n)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 const FASES = ['Não iniciado','Em andamento','Atrasado','Parado','Concluído'];
@@ -467,7 +505,6 @@ function applyPermissions() {
     });
 }
 
-// Fluxo de Autenticação
 $('#btnTogglePass').addEventListener('click', () => {
     const input = $('#loginPass'); input.type = input.type === 'password' ? 'text' : 'password';
 });
@@ -519,7 +556,23 @@ $('#btnSaveForcedPass').addEventListener('click', async () => {
 
 $('#btnLogout').addEventListener('click', async () => { await fetch('/api/logout', { method: 'POST' }); location.reload(); });
 
-// Gerenciamento de Usuários
+// Eventos de alteração de senha própria (Admin/User)
+$('#btnMudarMinhaSenha').addEventListener('click', () => {
+    $('#pwdAtualSelf').value = ''; $('#pwdNovaSelf').value = '';
+    $('#modalMudarSenha').style.display = 'flex';
+});
+
+$('#btnConfirmarMudarSenhaSelf').addEventListener('click', async () => {
+    const atual = $('#pwdAtualSelf').value.trim();
+    const nova = $('#pwdNovaSelf').value.trim();
+    if(!atual || !nova) { alert("Preencha ambos os campos de senha."); return; }
+    try {
+        const res = await api('POST', '/users/alterar-senha', { senha_atual: atual, nova_senha: nova });
+        alert(res.msg);
+        $('#modalMudarSenha').style.display = 'none';
+    } catch(err) { alert(err.message); }
+});
+
 async function fetchAndCacheUsers() {
     try {
         systemUsers = await api('GET', '/users');
@@ -593,7 +646,6 @@ $('#btnCreateUser').addEventListener('click', async () => {
     } catch(err) { alert(err.message); }
 });
 
-// Alertas de Reset
 async function checarAlertas() {
     if (currentUserRole !== 'admin') return;
     try {
@@ -631,8 +683,9 @@ function getSupNames(){
   return [...set].sort((a,b) => a.localeCompare(b, 'pt-BR'));
 }
 
-function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue) {
-    const supSelecionada = $('#f_sup').value ? $('#f_sup').value.trim().toLowerCase() : "";
+function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue, supForcada) {
+    const valorSup = supForcada !== undefined ? supForcada : ($('#f_sup').value || "");
+    const supSelecionada = valorSup.trim().toLowerCase();
     const respSelectEl = $('#f_responsavel');
     const valorAtualAnterior = selectedResponsavelValue !== undefined ? selectedResponsavelValue : respSelectEl.value;
     
@@ -659,7 +712,6 @@ function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue) {
 
 $('#f_sup').addEventListener('change', () => atualizarResponsaveisPorSuperintendencia());
 
-// NOVO: Lógica visual e de controle para gerenciamento de checkboxes
 function handleRowCheckboxChange(id, isChecked) {
     if(isChecked) {
         checkedIds.add(id);
@@ -681,7 +733,6 @@ function atualizarBotaoExcluirLote() {
     }
 }
 
-// Gatilho do cabeçalho mestre para marcar/desmarcar todos da página corrente
 $('#selectAllRows').addEventListener('change', (e) => {
     const isChecked = e.target.checked;
     const inputs = $$('tbody input[type="checkbox"].row-selector');
@@ -699,7 +750,6 @@ $('#selectAllRows').addEventListener('change', (e) => {
     atualizarBotaoExcluirLote();
 });
 
-// Execução da requisição de limpeza massiva em lote
 $('#btnExcluirLote').addEventListener('click', async () => {
     if(checkedIds.size === 0) return;
     if(!confirm(`Atenção: Você selecionou ${checkedIds.size} demandas. Deseja excluir todas permanentemente do banco de dados?`)) return;
@@ -727,7 +777,7 @@ function renderSupSelects(selectedFilter, selectedForm){
   const formEl = $('#f_sup'); const curForm = selectedForm !== undefined ? selectedForm : formEl.value;
   if(!names.length){ formEl.innerHTML = '<option value="">— Cadastre uma superintendência —</option>'; } 
   else {
-    let html = names.map(n => `<option value="${esc(n)}"${n===curForm?' selected':''}>${esc(n)}</option>`).join('');
+    let html = '<option value="">— Selecione uma superintendência —</option>' + names.map(n => `<option value="${esc(n)}"${n===curForm?' selected':''}>${esc(n)}</option>`).join('');
     if(curForm && !names.includes(curForm)){ html += `<option value="${esc(curForm)}" selected>${esc(curForm)}</option>`; }
     formEl.innerHTML = html;
   }
@@ -788,13 +838,13 @@ function render(){
   pageSize = Number($('#pageSize').value); const start = (page-1)*pageSize; const rows = filtered.slice(start, start+pageSize);
   const tbody = document.querySelector('#tbl tbody');
   
-  // Reseta o cabeçalho mestre ao trocar de página ou aplicar filtros
   $('#selectAllRows').checked = false;
 
   if(!rows.length){ tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px">Nenhum registro encontrado.</td></tr>`; } 
   else {
     tbody.innerHTML = rows.map(d=>{
       const isRowChecked = checkedIds.has(d.id);
+      const btnLabel = currentUserRole === 'admin' ? 'Editar' : 'Visualizar/Comentar';
       return `<tr id="row_${d.id}" class="${isRowChecked ? 'selected-row' : ''}">
         <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}" style="text-align: center;">
           <input type="checkbox" class="row-selector" data-id="${d.id}" ${isRowChecked ? 'checked' : ''} onchange="handleRowCheckboxChange(${d.id}, this.checked)" />
@@ -807,9 +857,9 @@ function render(){
         <td>${faseBadge(d.fase||'')}</td>
         <td>${esc(d.prox)}</td>
         <td>${d.prazo? new Date(d.prazo+'T12:00:00').toLocaleDateString('pt-BR'):''}</td>
-        <td class="admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}">
-          <button onclick="editRow(${d.id})">Editar</button>
-          <button class="danger" onclick="delRow(${d.id})">Excluir</button>
+        <td>
+          <button onclick="editRow(${d.id})">${btnLabel}</button>
+          <button class="danger admin-only ${currentUserRole === 'admin' ? '' : 'hidden-role'}" onclick="delRow(${d.id})">Excluir</button>
         </td>
       </tr>`}).join('');
   }
@@ -819,25 +869,82 @@ function render(){
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function editRow(id){
+async function carregarComentariosDemanda(acaoId) {
+    const listaEl = $('#listaComentariosDemanda');
+    listaEl.innerHTML = '<small style="color:var(--muted)">Carregando histórico...</small>';
+    try {
+        const comentarios = await api('GET', `/acoes/${acaoId}/comentarios`);
+        if(!comentarios.length) {
+            listaEl.innerHTML = '<small style="color:var(--muted); padding:4px; display:block;">Nenhum comentário registrado nesta demanda ainda.</small>';
+            return;
+        }
+        listaEl.innerHTML = comentarios.map(c => {
+            const dataFmt = new Date(c.criado_em).toLocaleString('pt-BR');
+            return `
+                <div class="comentario-item">
+                    <div class="comentario-meta">@${esc(c.username)} • ${dataFmt}</div>
+                    <div style="color:var(--text); word-break: break-word;">${esc(c.texto)}</div>
+                </div>
+            `;
+        }).join('');
+        listaEl.scrollTop = listaEl.scrollHeight; // Desce o scroll pro fim
+    } catch(e) {
+        listaEl.innerHTML = '<small style="color:var(--danger)">Falha ao carregar observações.</small>';
+    }
+}
+
+async function editRow(id){
   editingId = id; const d = data.find(x => x.id === id); if(!d) return;
   renderSupSelects(undefined, d.sup||'');
-  $('#f_nome').value = d.nome||''; $('#f_sup').value = d.sup||''; $('#f_desc').value = d.desc||'';
-  $('#f_valor').value = d.valor||0; $('#f_fase').value = d.fase||'Não iniciado'; $('#f_prox').value = d.prox||''; $('#f_prazo').value = d.prazo||'';
   
-  atualizarResponsaveisPorSuperintendencia(d.responsavel);
+  // Popula inputs textuais
+  $('#f_nome').value = d.nome||''; 
+  $('#f_sup').value = d.sup||''; 
+  $('#f_desc').value = d.desc||'';
+  $('#f_valor').value = d.valor||0; 
+  $('#f_fase').value = d.fase||'Não iniciado'; 
+  $('#f_prox').value = d.prox||''; 
+  $('#f_prazo').value = d.prazo||'';
+  
+  // Bloqueia campos se for usuário comum (apenas leitura)
+  const isUser = currentUserRole !== 'admin';
+  $$('#modal input, #modal select, #modal textarea').forEach(el => {
+      if(el.id !== 'newComentarioTexto') el.disabled = isUser;
+  });
+
+  atualizarResponsaveisPorSuperintendencia(d.responsavel, d.sup);
+  
+  // Exibe o painel de notas estruturais e carrega do banco
+  $('#f_comentarios_bloco').style.display = 'block';
+  $('#newComentarioTexto').value = '';
+  await carregarComentariosDemanda(id);
+  
   $('#modal').style.display='flex';
 }
 
 function clearModal(){
-  editingId = null; $('#f_nome').value=''; $('#f_sup').value=''; $('#f_desc').value='';
+  editingId = null; 
+  $$('#modal input, #modal select, #modal textarea').forEach(el => el.disabled = false);
+  $('#f_nome').value=''; $('#f_sup').value=''; $('#f_desc').value='';
   $('#f_valor').value=''; $('#f_fase').value='Não iniciado'; $('#f_prox').value=''; $('#f_prazo').value='';
-  atualizarResponsaveisPorSuperintendencia(); 
+  $('#f_comentarios_bloco').style.display = 'none';
+  atualizarResponsaveisPorSuperintendencia(undefined, ""); 
 }
 
 function addRow(){ clearModal(); renderSupSelects(); $('#modal').style.display='flex'; }
 
+$('#btnPostarComentario').addEventListener('click', async () => {
+    const texto = $('#newComentarioTexto').value.trim();
+    if(!texto || editingId === null) return;
+    try {
+        await api('POST', `/acoes/${editingId}/comentarios`, { texto });
+        $('#newComentarioTexto').value = '';
+        await carregarComentariosDemanda(editingId);
+    } catch(err) { alert(err.message); }
+});
+
 async function saveRow(){
+  if(currentUserRole !== 'admin') return; // Bloqueio preventivo no front
   const d = {
     nome: $('#f_nome').value.trim(), sup: $('#f_sup').value, desc: $('#f_desc').value.trim(),
     responsavel: $('#f_responsavel').value, valor: parseFloat($('#f_valor').value||'0'),
@@ -854,7 +961,7 @@ async function delRow(id){
     if(!confirm('Excluir este registro?')) return; 
     try{ 
         await api('DELETE', '/acoes/' + id); 
-        checkedIds.delete(id); // Limpa o ID do rastreio caso ele seja excluído individualmente
+        checkedIds.delete(id); 
         atualizarBotaoExcluirLote();
         await loadData(); 
     }catch(e){ alert('Erro: ' + e.message) } 
@@ -914,7 +1021,6 @@ function setTVMode(on){
 
 function goFull(){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
-// Vinculação Unificada de Eventos do Sistema
 document.getElementById('search').addEventListener('input', applyFilters);
 document.getElementById('filterFase').addEventListener('change', applyFilters);
 document.getElementById('filterSup').addEventListener('change', applyFilters);
@@ -949,7 +1055,12 @@ async function initAuth(){
   } catch(e) { showLogin(); }
 }
 
-async function initData() { await loadData(); await loadSups(); clockTick(); }
+async function initData() { 
+  await fetchAndCacheUsers(); 
+  await loadData(); 
+  await loadSups(); 
+  clockTick(); 
+}
 initAuth();
 </script>
 </body>

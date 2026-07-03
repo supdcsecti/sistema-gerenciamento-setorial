@@ -2,7 +2,7 @@ import sqlite3
 from flask import Blueprint, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.connection import get_db, utc_now
-from utils.decorators import admin_required
+from utils.decorators import admin_required, login_required
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -47,11 +47,31 @@ def get_me():
         "requer_reset": bool(user['requer_reset'])
     })
 
+@auth_bp.post("/api/users/alterar-senha")
+@login_required
+def alterar_propria_senha():
+    """Permite que qualquer usuário logado (inclusive o admin mestre) altere sua própria senha."""
+    body = request.get_json()
+    senha_atual = body.get("senha_atual", "").strip()
+    nova_senha = body.get("nova_senha", "").strip()
+    
+    if not senha_atual or not nova_senha:
+        return jsonify({"erro": "A senha atual e a nova senha são obrigatórias"}), 400
+        
+    username = session['user']
+    with get_db() as conn:
+        user = conn.execute("SELECT password FROM users WHERE username = ?", (username,)).fetchone()
+        if not user or not check_password_hash(user['password'], senha_atual):
+            return jsonify({"erro": "Senha atual incorreta"}), 400
+            
+        pwd_hash = generate_password_hash(nova_senha)
+        conn.execute("UPDATE users SET password = ? WHERE username = ?", (pwd_hash, username))
+    return jsonify({"msg": "Sua senha foi atualizada com sucesso!"})
+
 @auth_bp.get("/api/users")
+@login_required
 def list_users():
-    """Lista todos os usuários para popular dropdowns estruturais. Retorna vazio amigavelmente se não for admin."""
-    if session.get('role') != 'admin':
-        return jsonify([]) # Fallback seguro contra travamentos de interface de visualizadores comuns
+    """Lista todos os usuários para popular dropdowns estruturais de responsáveis."""
     with get_db() as conn:
         rows = conn.execute("SELECT username, role, setor, email, requer_reset FROM users WHERE username != 'administrator' ORDER BY username ASC").fetchall()
     return jsonify([

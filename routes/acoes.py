@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from database.connection import get_db, row_to_dict, utc_now
 from utils.decorators import admin_required, login_required
 
@@ -8,7 +8,7 @@ acoes_bp = Blueprint('acoes', __name__)
 @acoes_bp.get("/api/acoes")
 @login_required
 def list_acoes():
-    """Lista todas as ações cadastradas. Permite visualizadores comuns."""
+    """Lista todas as ações cadastradas. Permite visualizadores."""
     with get_db() as conn:
         rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
     return jsonify([row_to_dict(r) for r in rows])
@@ -16,10 +16,16 @@ def list_acoes():
 @acoes_bp.post("/api/acoes")
 @admin_required
 def create_acao():
-    """Cria uma nova ação com o campo responsável. Apenas administradores."""
+    """Cria uma nova ação. Apenas administradores."""
     body = request.get_json()
-    now = utc_now()
+    sup_nome = body.get('sup', '')
+    
     with get_db() as conn:
+        sup_exists = conn.execute("SELECT 1 FROM superintendencias WHERE nome = ?", (sup_nome,)).fetchone()
+        if not sup_exists:
+            return jsonify({"erro": "Superintendência inválida ou inexistente."}), 400
+        
+        now = utc_now()
         cur = conn.execute(
             """
             INSERT INTO acoes (
@@ -27,8 +33,8 @@ def create_acao():
                 proxima_etapa, prazo, status, criado_em, atualizado_em
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
             """,
-            (body.get('nome', ''), body.get('desc', ''), body.get('sup', ''), 
-             body.get('responsavel', ''), body.get('valor', 0), body.get('fase', 'Não iniciado'), 
+            (body.get('nome', ''), body.get('desc', ''), sup_nome, body.get('responsavel', ''),
+             body.get('valor', 0), body.get('fase', 'Não iniciado'), 
              body.get('prox', ''), body.get('prazo', ''), now, now),
         )
         row = conn.execute("SELECT * FROM acoes WHERE id = ?", (cur.lastrowid,)).fetchone()
@@ -37,10 +43,16 @@ def create_acao():
 @acoes_bp.put("/api/acoes/<int:acao_id>")
 @admin_required
 def update_acao(acao_id):
-    """Atualiza uma ação existente incluindo o responsável. Apenas administradores."""
+    """Atualiza uma ação existente. Apenas administradores."""
     body = request.get_json()
-    now = utc_now()
+    sup_nome = body.get('sup', '')
+    
     with get_db() as conn:
+        sup_exists = conn.execute("SELECT 1 FROM superintendencias WHERE nome = ?", (sup_nome,)).fetchone()
+        if not sup_exists:
+            return jsonify({"erro": "Superintendência inválida ou inexistente."}), 400
+            
+        now = utc_now()
         conn.execute(
             """
             UPDATE acoes SET 
@@ -48,16 +60,15 @@ def update_acao(acao_id):
                 fase = ?, proxima_etapa = ?, prazo = ?, atualizado_em = ?
             WHERE id = ?
             """,
-            (body.get('nome', ''), body.get('desc', ''), body.get('sup', ''), 
-             body.get('responsavel', ''), body.get('valor', 0), body.get('fase', 'Não iniciado'), 
-             body.get('prox', ''), body.get('prazo', ''), now, acao_id)
+            (body.get('nome', ''), body.get('desc', ''), sup_nome, body.get('responsavel', ''), body.get('valor', 0), 
+             body.get('fase', 'Não iniciado'), body.get('prox', ''), body.get('prazo', ''), now, acao_id)
         )
     return jsonify({"msg": "Atualizado com sucesso"})
 
 @acoes_bp.delete("/api/acoes/<int:acao_id>")
 @admin_required
 def delete_acao(acao_id):
-    """Exclui uma ação existente individualmente. Apenas administradores."""
+    """Exclui uma ação existente. Apenas administradores."""
     with get_db() as conn:
         conn.execute("DELETE FROM acoes WHERE id = ?", (acao_id,))
     return "", 204
@@ -65,23 +76,45 @@ def delete_acao(acao_id):
 @acoes_bp.post("/api/acoes/excluir-lote")
 @admin_required
 def excluir_acoes_lote():
-    """Exclui múltiplas ações selecionadas manualmente de uma vez só via ID. Apenas administradores."""
+    """Remove múltiplas demandas em lote selecionadas no front-end."""
     body = request.get_json()
-    ids_para_excluir = body.get("ids", [])
-    
-    if not ids_para_excluir or not isinstance(ids_para_excluir, list):
-        return jsonify({"erro": "Nenhum registro selecionado ou formato inválido"}), 400
+    ids = body.get("ids", [])
+    if not ids:
+        return jsonify({"erro": "Nenhum ID fornecido para exclusão."}), 400
         
     with get_db() as conn:
-        placeholders = ",".join("?" for _ in ids_para_excluir)
-        conn.execute(f"DELETE FROM acoes WHERE id IN ({placeholders})", ids_para_excluir)
+        placeholders = ",".join(["?"] * len(ids))
+        conn.execute(f"DELETE FROM acoes WHERE id IN ({placeholders})", tuple(ids))
         
-    return jsonify({"msg": f"{len(ids_para_excluir)} registos excluídos com sucesso!"}), 200
+    return jsonify({"msg": f"{len(ids)} demandas excluídas com sucesso."}), 200
+
+@acoes_bp.get("/api/acoes/<int:acao_id>/comentarios")
+@login_required
+def listar_comentarios(acao_id):
+    """Retorna o histórico cronológico de notas/comentários de uma demanda específica."""
+    with get_db() as conn:
+        rows = conn.execute("SELECT username, texto, criado_em FROM comentarios WHERE acao_id = ? ORDER BY id ASC", (acao_id,)).fetchall()
+    return jsonify([{"username": r["username"], "texto": r["texto"], "criado_em": r["criado_em"]} for r in rows])
+
+@acoes_bp.post("/api/acoes/<int:acao_id>/comentarios")
+@login_required
+def adicionar_comentario(acao_id):
+    """Permite a qualquer usuário autenticado registrar observações e comentários."""
+    body = request.get_json()
+    texto = body.get("texto", "").strip()
+    if not texto:
+        return jsonify({"erro": "O comentário não pode ser vazio"}), 400
+        
+    username = session['user']
+    now = utc_now()
+    with get_db() as conn:
+        conn.execute("INSERT INTO comentarios (acao_id, username, texto, criado_em) VALUES (?, ?, ?, ?)", (acao_id, username, texto, now))
+    return jsonify({"msg": "Comentário registrado com sucesso!", "username": username, "texto": texto, "criado_em": now}), 201
 
 @acoes_bp.post("/api/acoes/importar")
 @admin_required
 def importar_acoes():
-    """Importa múltiplas ações em lote via JSON/CSV contendo o campo responsável."""
+    """Importa múltiplas ações em lote via JSON/CSV."""
     payload = request.get_json()
     now = utc_now()
     if not isinstance(payload, list):
@@ -97,8 +130,8 @@ def importar_acoes():
                     proxima_etapa, prazo, status, criado_em, atualizado_em
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
                 """,
-                (item.get('nome', ''), item.get('desc', ''), item.get('sup', ''), 
-                 item.get('responsavel', ''), item.get('valor', 0), item.get('fase', 'Não iniciado'), 
+                (item.get('nome', ''), item.get('desc', ''), item.get('sup', ''), item.get('responsavel', ''),
+                 item.get('valor', 0), item.get('fase', 'Não iniciado'), 
                  item.get('prox', ''), item.get('prazo', ''), now, now)
             )
             count += 1
@@ -114,7 +147,7 @@ def importar_acoes():
 @acoes_bp.get("/api/superintendencias")
 @login_required
 def list_superintendencias():
-    """Lista todas as superintendências. Permite visualizadores comuns."""
+    """Lista todas as superintendências. Permite visualizadores."""
     with get_db() as conn:
         rows = conn.execute("SELECT id, nome FROM superintendencias").fetchall()
     return jsonify([{"id": r["id"], "nome": r["nome"]} for r in rows])
