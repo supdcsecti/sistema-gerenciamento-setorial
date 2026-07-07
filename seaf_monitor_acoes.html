@@ -1,65 +1,81 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<link rel="icon" type="image/png" href="assets/img logo.png">
+<link type="image/png" rel="icon" href="assets/img logo.png">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sistema de gerenciamento setorial SECTI</title>
 <style>
 :root{
-  --bg:#050a14;
-  --panel:#0a1226;
-  --card:#0f1a38;
-  --accent:#2563eb;
-  --accent-2:#60a5fa;
-  --text:#e2e8f0;
-  --muted:#94a3b8;
-  --warn:#f59e0b;
-  --danger:#ef4444;
-  --ok:#10b981;
-  --paused:#f97316;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --bg: #002244;           
+  --panel: #003366;        
+  --card: #004488;         
+  --accent: #0072c6;
+  --accent-2: #3399ff;     
+  --text: #ffffff;
+  --muted: #a6c8e0;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --ok: #10b981;
+  --paused: #f97316;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
+
 body{
-  margin:0; background:linear-gradient(120deg,#050a14,#0a1226 40%,#050a14 100%);
-  color:var(--text); font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial;
+  margin:0; 
+  background: linear-gradient(rgba(0, 34, 68, 0.94), rgba(0, 34, 68, 0.94)), url('assets/imglogin.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  color:var(--text); 
+  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial;
 }
+
 .logo-img {
-  width: 80px;
-  height: 80px;
+  width: 140px;
+  height: auto;
   object-fit: contain;
-  border-radius: 8px;
-  padding: 4px;
 }
+
 .container{max-width:1400px; margin:0 auto; padding:18px}
+
 .header{
   display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-  padding:12px 0 8px;
+  padding:16px;
+  background: var(--accent);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: var(--shadow);
 }
-.brand{display:flex; gap:12px; align-items:center}
+.brand{display:flex; gap:16px; align-items:center}
 .title h1{margin:0; font-size:20px; letter-spacing:.3px}
-.title small{display:block; color:var(--muted); margin-top:2px}
+.title small{display:block; color:var(--text); margin-top:2px; opacity: 0.9;}
 
 .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
 
 button, select, input, textarea, .file{
-  background:#1e293b; color:var(--text); border:1px solid #334155; border-radius:10px; padding:10px 12px;
-  box-shadow: var(--shadow); outline:none; transition: border 0.2s; width: 100%;
+  background: #002b54 !important; color:var(--text) !important; border:1px solid #1a4d80; border-radius:10px; padding:10px 12px;
+  box-shadow: var(--shadow); outline:none; transition: background 0.2s; width: 100%;
 }
-.controls input, .controls select, .controls button { width: auto; }
-input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+.controls input, .controls select, .controls button { width: auto; background: #003a70 !important; border-color: #005599; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent-2); }
 button{ cursor:pointer; transition:.2s transform ease, .2s background ease }
-button:hover{ transform:translateY(-1px); background:#334155 }
-button.primary{ background: linear-gradient(180deg,#2563eb,#1d4ed8); border-color:#2563eb; }
-button.ghost{ background:transparent; border-color:#334155 }
-button.warn{ background:linear-gradient(180deg,#d97706,#b45309); border-color:#b45309 }
-button.danger{ background:linear-gradient(180deg,#dc2626,#991b1b); border-color:#991b1b }
+button:hover{ transform:translateY(-1px); background:#004b93 !important; }
+
+button.primary{ background: var(--accent) !important; border-color: var(--accent); }
+button.primary:hover{ background: #005cb3 !important; }
+button.ghost{ background:transparent !important; border-color:#005599 }
+button.warn{ background: #d97706 !important; border-color:#b45309 }
+button.danger{ background: #dc2626 !important; border-color:#991b1b }
+
+::placeholder {
+  color: var(--muted) !important;
+  opacity: 0.8;
+}
 
 .badge{
-  display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 10px; font-size:12px; border:1px solid transparent;
+  display:inline-flex; align-items:center; gap:6px; border-radius: 999px; padding:4px 10px; font-size:12px; border:1px solid transparent;
 }
 .badge.ok{ background:#064e3b; border-color:#065f46; color:#a7f3d0 }
 .badge.running{ background:#431407; border-color:#7c2d12; color:#ffedd5 }
@@ -70,25 +86,29 @@ button.danger{ background:linear-gradient(180deg,#dc2626,#991b1b); border-color:
 .badge.db-err{ background:#450a0a; border-color:#7f1d1d; color:#fecaca }
 
 .kpis{ display:grid; grid-template-columns: repeat(5,1fr); gap:12px; margin-top:10px}
+
 .card{
-  background:linear-gradient(180deg,#0f1a38,#0a1226); border:1px solid #1e293b; border-radius:16px; padding:16px; box-shadow: var(--shadow);
+  background: var(--accent); 
+  border: 1px solid rgba(255,255,255,0.15); 
+  border-radius:16px; padding:16px; box-shadow: var(--shadow);
+  backdrop-filter: blur(4px);
 }
-.kpi .label{ color:var(--muted); font-size:12px }
+.kpi .label{ color:var(--muted); font-size:12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .kpi .value{ font-size:28px; font-weight:700; margin-top:6px }
 
 .table{
-  margin-top:14px; overflow:hidden; border-radius:16px; border:1px solid #1e293b; box-shadow: var(--shadow);
+  margin-top:14px; overflow:hidden; border-radius:16px; border: 1px solid var(--accent); box-shadow: var(--shadow);
 }
-table{ width:100%; border-collapse:collapse; background:#0a1226 }
+table{ width:100%; border-collapse:collapse; background: rgba(0, 43, 84, 0.96); }
 thead th{
-  position:sticky; top:0; background:#111827; z-index:1; font-weight:600; text-align:left;
-  padding:12px 10px; border-bottom:1px solid #1e293b; font-size:13px; color:#e2e8f0;
+  position:sticky; top:0; background: #003366; z-index:1; font-weight:600; text-align:left;
+  padding:12px 10px; border-bottom: 2px solid var(--accent); font-size:13px; color:var(--text);
 }
 tbody td{
-  padding:12px 10px; border-bottom:1px solid #1e293b; vertical-align:top; font-size:14px; color:#e2e8f0;
+  padding:12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align:top; font-size:14px; color:var(--text);
 }
-tbody tr:hover{ background:#1e293b }
-tbody tr.selected-row { background: rgba(37, 99, 235, 0.15) !important; }
+tbody tr:hover{ background: rgba(0, 114, 198, 0.15) }
+tbody tr.selected-row { background: rgba(0, 114, 198, 0.25) !important; }
 
 input[type="checkbox"].row-selector {
   width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);
@@ -98,11 +118,12 @@ input[type="checkbox"].row-selector {
   display:flex; justify-content:space-between; align-items:center; gap:10px; margin:14px 0 10px;
 }
 .pager{ display:flex; gap:8px; align-items:center }
-.clock{ font-variant-numeric:tabular-nums; color:var(--muted) }
+.clock{ font-variant-numeric:tabular-nums; color:var(--text); font-weight: bold; }
 
 .charts{
   display:grid; grid-template-columns:1fr 1.4fr; gap:12px; margin-top:12px;
 }
+.chart-card { background: var(--panel) !important; }
 .chart-card h3{ margin:0 0 12px; font-size:14px; color:var(--muted); font-weight:600 }
 .chart-wrap{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; min-height:180px }
 #chartPie{ width:180px; height:180px; flex-shrink:0 }
@@ -116,13 +137,13 @@ input[type="checkbox"].row-selector {
 .tv-exit-bar{
   display:none; position:fixed; top:14px; right:14px; z-index:1000;
   align-items:center; gap:10px; padding:10px 14px;
-  background:rgba(10,18,38,.92); border:1px solid #2563eb; border-radius:12px;
+  background:rgba(0,51,102,.95); border:1px solid var(--accent); border-radius:12px;
 }
 .tv-on .tv-exit-bar{ display:flex }
 
 .sup-add{ display:flex; gap:8px; margin-bottom:12px }
 .sup-add input{ flex:1 }
-.sup-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #1e293b; gap:10px }
+.sup-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #1a4d80; gap:10px }
 .sup-nome{ flex:1; font-weight:500 }
 .sup-actions{ display:flex; gap:6px; flex-shrink:0 }
 
@@ -130,21 +151,24 @@ input[type="checkbox"].row-selector {
 .form-group label { font-size: 13px; color: var(--muted); font-weight: 500; text-align: left; }
 .hidden-role { display: none !important; }
 
-/* Estilização da área de comentários */
-.comentarios-container { border-top: 1px dashed #334155; margin-top: 20px; padding-top: 16px; text-align: left; }
-.comentarios-list { max-height: 180px; overflow-y: auto; background: #0a1226; border-radius: 8px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #1e293b; }
-.comentario-item { font-size: 13px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; }
+.comentarios-container { border-top: 1px dashed #1a4d80; margin-top: 20px; padding-top: 16px; text-align: left; }
+.comentarios-list { max-height: 180px; overflow-y: auto; background: #002244; border-radius: 8px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #1a4d80; }
+.comentario-item { font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
 .comentario-item:last-child { border-bottom: none; }
 .comentario-meta { color: var(--accent-2); font-weight: bold; font-size: 11px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
 
-  <div id="loginScreen" style="display:flex; position:fixed; inset:0; background:rgba(5, 10, 20, 0.95); align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(8px);">
-    <div class="card" style="width: 340px; padding: 24px; display:flex; flex-direction:column; gap:16px;">
-      <div style="text-align:center; margin-bottom: 10px;">
-        <h2 style="margin:0; font-size: 24px;">Login</h2>
-        <small style="color:var(--muted)">Autentique-se para continuar</small>
+  <div id="loginScreen" style="display:flex; position:fixed; inset:0; background: linear-gradient(rgba(0, 34, 68, 0.88), rgba(0, 34, 68, 0.88)), url('assets/imglogin.jpeg') no-repeat center center fixed; background-size: cover; align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(6px);">
+    <div class="card" style="width: 360px; padding: 24px; display:flex; flex-direction:column; gap:16px; background: var(--accent); border: 1px solid rgba(255,255,255,0.2);">
+      
+      <div style="text-align:center; margin-bottom: -30px;">
+         <img src="assets/img logo.png" alt="Logo SECTI" style="width: 100px; height: auto;" />
+      </div>
+      
+      <div style="text-align:center; margin-bottom: -30px;">
+        <h2 style="margin:0; font-size: 24px; color: #ffffff;">Login</h2>
       </div>
       <div class="form-group">
         <label>Usuário</label>
@@ -154,12 +178,12 @@ input[type="checkbox"].row-selector {
         <label>Senha</label>
         <div style="display: flex; gap: 4px;">
           <input id="loginPass" type="password" placeholder="Sua senha" style="flex: 1;" />
-          <button type="button" id="btnTogglePass" style="padding: 10px; background:#334155; border-radius:10px; width:auto;">👁️</button>
+          <button type="button" id="btnTogglePass" style="padding: 10px; background:#002b54; border-radius:10px; width:auto; border: 1px solid #1a4d80;">👁️</button>
         </div>
-        <small id="btnEsqueci" style="color: var(--accent-2); cursor: pointer; text-align: right; display: block; margin-top: 4px; font-size: 11px;">Esqueci minha senha</small>
+        <small id="btnEsqueci" style="color: var(--text); cursor: pointer; text-align: right; display: block; margin-top: 4px; font-size: 11px; text-decoration: underline;">Esqueci minha senha</small>
       </div>
       
-      <div class="form-group" id="recoveryEmailGroup" style="display: none; border-top: 1px dashed #334155; padding-top: 12px;">
+      <div class="form-group" id="recoveryEmailGroup" style="display: none; border-top: 1px dashed #1a4d80; padding-top: 12px;">
         <label style="color: var(--warn)">E-mail de Recuperação</label>
         <input id="recoveryEmail" type="text" placeholder="Digite seu e-mail cadastrado" />
         <div style="display: flex; gap: 4px; margin-top: 6px;">
@@ -169,11 +193,11 @@ input[type="checkbox"].row-selector {
       </div>
 
       <div style="color:var(--danger); font-size:12px; display:none;" id="loginError">Usuário ou senha inválidos.</div>
-      <button id="btnLogin" class="primary" style="padding: 12px; font-weight: bold; margin-top: 10px;">Entrar</button>
+      <button id="btnLogin" class="primary" style="padding: 12px; font-weight: bold; margin-top: 10px; background: #003a70 !important; border-color: #005599;">Entrar</button>
     </div>
   </div>
 
-  <div id="forceResetScreen" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.98); align-items:center; justify-content:center; z-index:99999; backdrop-filter:blur(10px);">
+  <div id="forceResetScreen" style="display:none; position:fixed; inset:0; background:rgba(0, 34, 68, 0.98); align-items:center; justify-content:center; z-index:99999; backdrop-filter:blur(10px);">
     <div class="card" style="width: 360px; padding: 24px; display:flex; flex-direction:column; gap:16px;">
       <div style="text-align:center; margin-bottom: 5px;">
         <h2 style="margin:0; font-size: 20px; color: var(--warn);">🔒 Atualização Obrigatória</h2>
@@ -202,7 +226,9 @@ input[type="checkbox"].row-selector {
   <div class="container" id="appContainer" style="display:none;">
     <div class="header">
       <div class="brand">
-        <img src="assets/img logo.png" alt="Logo SECTI" class="logo-img" onerror="this.style.display='none'" />
+        <div class="logo-box-menu">
+          <img src="assets/img logo.png" alt="Logo SECTI" class="logo-img" onerror="this.style.display='none'" />
+        </div>
         <div class="title">
           <h1>Sistema de gerenciamento setorial SECTI</h1>
           <small>Secretaria de Estado da Ciência, da Tecnologia e da Inovação — Estado de Alagoas</small>
@@ -305,7 +331,7 @@ input[type="checkbox"].row-selector {
 
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px);">
   <div class="card" style="width:min(920px, 96vw); max-height:95vh; overflow:auto; padding:24px; background:var(--panel);">
-    <h3 style="margin:0 0 20px 0; font-size:1.5rem; border-bottom:1px solid #1e293b; padding-bottom:12px;">Dados do Registro</h3>
+    <h3 style="margin:0 0 20px 0; font-size:1.5rem; border-bottom:1px solid #1a4d80; padding-bottom:12px;">Dados do Registro</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       <div class="form-group"><label>Programa / Ação / Projeto</label><input id="f_nome" type="text" /></div>
       <div class="form-group"><label>Superintendência</label><select id="f_sup"></select></div>
@@ -317,7 +343,6 @@ input[type="checkbox"].row-selector {
       <div class="form-group"><label>Prazo para conclusão</label><input id="f_prazo" type="date" /></div>
     </div>
 
-    <!-- Container Dinâmico de Histórico de Comentários para Usuários e Admins -->
     <div class="comentarios-container" id="f_comentarios_bloco" style="display: none;">
       <label style="font-size: 13px; color: var(--muted); font-weight: 500; display: block; margin-bottom: 6px;">Histórico de Observações e Comentários</label>
       <div class="comentarios-list" id="listaComentariosDemanda"></div>
@@ -327,14 +352,13 @@ input[type="checkbox"].row-selector {
       </div>
     </div>
 
-    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid #1e293b;">
+    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid #1a4d80;">
       <button id="cancel" class="ghost" style="width:auto;">Fechar</button>
       <button id="save" class="primary admin-only" style="width:auto;">Salvar Registro</button>
     </div>
   </div>
 </div>
 
-<!-- Modal para alteração voluntária de senha (Usuários comuns e Administrator) -->
 <div id="modalMudarSenha" style="display:none; position:fixed; inset:0; background:rgba(5, 10, 20, 0.85); align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(4px);">
   <div class="card" style="width:360px; padding:24px; display:flex; flex-direction:column; gap:16px;">
     <h3 style="margin:0; border-bottom:1px solid #1e293b; padding-bottom:8px;">Segurança: Alterar Senha</h3>
@@ -410,6 +434,7 @@ input[type="checkbox"].row-selector {
 </div>
 
 <script>
+// Mantendo toda a lógica JavaScript intacta
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 let data = [];
@@ -465,16 +490,17 @@ function renderBarChart(){
   const maxVal = Math.max(...valores, 1);
   const w=400, h=220, padL=88, padR=16, padT=16, padB=24;
   const chartW = w - padL - padR; const chartH = h - padT - padB;
-  const gap = chartH / names.length; const barH = gap * 0.55;
+  const gap = h - padT - padB;
+  const gapRow = gap / names.length; const barH = gapRow * 0.55;
   const trunc = s => s.length > 14 ? s.slice(0,12) + '…' : s;
   let bars = `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#334155" stroke-width="1"/>`;
   names.forEach((s, i) => {
-    const v = valores[i]; const bw = (v/maxVal)*chartW; const y = padT + i*gap + (gap-barH)/2;
+    const v = valores[i]; const bw = (v/maxVal)*chartW; const y = padT + i*gapRow + (gapRow-barH)/2;
     bars += `<text x="${padL-6}" y="${y+barH/2+4}" text-anchor="end" fill="#94a3b8" font-size="11">${esc(trunc(s))}</text>`;
     bars += `<rect x="${padL}" y="${y}" width="${Math.max(bw, v>0?4:0)}" height="${barH}" rx="5" fill="url(#barGrad)"/>`;
     if(v>0) bars += `<text x="${padL+bw+6}" y="${y+barH/2+4}" fill="#e2e8f0" font-size="10">${formatShortMoney(v)}</text>`;
   });
-  svg.innerHTML = `<defs><linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs>${bars}`;
+  svg.innerHTML = `<defs><linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0072c6"/><stop offset="100%" stop-color="#0072c6"/></linearGradient></defs>${bars}`;
 }
 
 function renderCharts(){ renderPieChart(); renderBarChart(); }
@@ -556,7 +582,6 @@ $('#btnSaveForcedPass').addEventListener('click', async () => {
 
 $('#btnLogout').addEventListener('click', async () => { await fetch('/api/logout', { method: 'POST' }); location.reload(); });
 
-// Eventos de alteração de senha própria (Admin/User)
 $('#btnMudarMinhaSenha').addEventListener('click', () => {
     $('#pwdAtualSelf').value = ''; $('#pwdNovaSelf').value = '';
     $('#modalMudarSenha').style.display = 'flex';
@@ -583,7 +608,7 @@ async function carregarListaUsuarios() {
     await fetchAndCacheUsers();
     if(!systemUsers.length) { $('#listaUsuariosCadastrados').innerHTML = ''; return; }
     $('#listaUsuariosCadastrados').innerHTML = systemUsers.map(u => `
-        <div style="display:flex; flex-direction:column; padding:10px 0; border-bottom:1px solid #1e293b; gap:4px; font-size:13px;">
+        <div style="display:flex; flex-direction:column; padding:10px 0; border-bottom:1px solid #1a4d80; gap:4px; font-size:13px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span><strong>${esc(u.username)}</strong> (${u.role})</span>
                 <div style="display:flex; gap:4px;">
@@ -750,23 +775,20 @@ $('#selectAllRows').addEventListener('change', (e) => {
     atualizarBotaoExcluirLote();
 });
 
-$('#btnExcluirLote').addEventListener('click', async () => {
+function btnExcluirLoteClick() {
     if(checkedIds.size === 0) return;
     if(!confirm(`Atenção: Você selecionou ${checkedIds.size} demandas. Deseja excluir todas permanentemente do banco de dados?`)) return;
     
-    try {
-        const listaIds = Array.from(checkedIds);
-        const res = await api('POST', '/acoes/excluir-lote', { ids: listaIds });
+    api('POST', '/acoes/excluir-lote', { ids: Array.from(checkedIds) })
+    .then(res => {
         alert(res.msg);
-        
         checkedIds.clear();
         $('#selectAllRows').checked = false;
         atualizarBotaoExcluirLote();
-        await loadData();
-    } catch(err) {
-        alert("Falha na exclusão massiva: " + err.message);
-    }
-});
+        return loadData();
+    })
+    .catch(err => alert("Falha na exclusão massiva: " + err.message));
+}
 
 function renderSupSelects(selectedFilter, selectedForm){
   const names = sups.map(s => s.nome).sort((a,b) => a.localeCompare(b, 'pt-BR'));
@@ -887,7 +909,7 @@ async function carregarComentariosDemanda(acaoId) {
                 </div>
             `;
         }).join('');
-        listaEl.scrollTop = listaEl.scrollHeight; // Desce o scroll pro fim
+        listaEl.scrollTop = listaEl.scrollHeight; 
     } catch(e) {
         listaEl.innerHTML = '<small style="color:var(--danger)">Falha ao carregar observações.</small>';
     }
@@ -897,7 +919,6 @@ async function editRow(id){
   editingId = id; const d = data.find(x => x.id === id); if(!d) return;
   renderSupSelects(undefined, d.sup||'');
   
-  // Popula inputs textuais
   $('#f_nome').value = d.nome||''; 
   $('#f_sup').value = d.sup||''; 
   $('#f_desc').value = d.desc||'';
@@ -906,7 +927,6 @@ async function editRow(id){
   $('#f_prox').value = d.prox||''; 
   $('#f_prazo').value = d.prazo||'';
   
-  // Bloqueia campos se for usuário comum (apenas leitura)
   const isUser = currentUserRole !== 'admin';
   $$('#modal input, #modal select, #modal textarea').forEach(el => {
       if(el.id !== 'newComentarioTexto') el.disabled = isUser;
@@ -914,7 +934,6 @@ async function editRow(id){
 
   atualizarResponsaveisPorSuperintendencia(d.responsavel, d.sup);
   
-  // Exibe o painel de notas estruturais e carrega do banco
   $('#f_comentarios_bloco').style.display = 'block';
   $('#newComentarioTexto').value = '';
   await carregarComentariosDemanda(id);
@@ -944,7 +963,7 @@ $('#btnPostarComentario').addEventListener('click', async () => {
 });
 
 async function saveRow(){
-  if(currentUserRole !== 'admin') return; // Bloqueio preventivo no front
+  if(currentUserRole !== 'admin') return; 
   const d = {
     nome: $('#f_nome').value.trim(), sup: $('#f_sup').value, desc: $('#f_desc').value.trim(),
     responsavel: $('#f_responsavel').value, valor: parseFloat($('#f_valor').value||'0'),
@@ -959,12 +978,12 @@ async function saveRow(){
 
 async function delRow(id){ 
     if(!confirm('Excluir este registro?')) return; 
-    try{ 
+    try { 
         await api('DELETE', '/acoes/' + id); 
         checkedIds.delete(id); 
         atualizarBotaoExcluirLote();
         await loadData(); 
-    }catch(e){ alert('Erro: ' + e.message) } 
+    } catch(e) { alert('Erro: ' + e.message) } 
 }
 
 function exportCSV(){
@@ -1044,6 +1063,7 @@ document.getElementById('pageSize').addEventListener('change', ()=>{ page=1; ren
 document.getElementById('btnTV').addEventListener('click', () => setTVMode(!tvMode));
 document.getElementById('btnExitTV').addEventListener('click', ()=> setTVMode(false));
 document.getElementById('btnFull').addEventListener('click', goFull);
+document.getElementById('btnExcluirLote').addEventListener('click', btnExcluirLoteClick);
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && tvMode) setTVMode(false); });
 
 async function initAuth(){
