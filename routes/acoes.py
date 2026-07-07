@@ -8,29 +8,70 @@ acoes_bp = Blueprint('acoes', __name__)
 @acoes_bp.get("/api/acoes")
 @login_required
 def list_acoes():
-    """Lista todas as ações cadastradas. Permite visualizadores."""
+    """Lista as ações cadastradas. Administradores veem tudo, usuários comuns veem apenas o seu setor."""
+    user_role = session.get('role')
+    username = session.get('user') or session.get('username')
+    
+    # Busca a superintendência da sessão primeiro
+    user_setor = session.get('setor') or session.get('superintendencia') or ""
+    
     with get_db() as conn:
-        rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
+        # Se for usuário comum e a sessão estiver vazia, busca direto no banco para garantir
+        if user_role != 'admin' and not user_setor.strip():
+            user_row = conn.execute("SELECT setor FROM users WHERE username = ?", (username,)).fetchone()
+            if user_row and user_row["setor"]:
+                user_setor = user_row["setor"]
+                session['setor'] = user_setor  # Corrige a sessão dinamicamente
+                
+        # Log de diagnóstico no terminal do VS Code
+        print(f"[DEBUG SECTI] Usuário: {username} | Role: {user_role} | Setor Lido/Corrigido: '{user_setor}'")
+        
+        if user_role == 'admin':
+            # Administradores acessam todo o banco de demandas
+            rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
+        else:
+            if not user_setor.strip():
+                # Se mesmo buscando no banco continuar vazio, retorna nada
+                return jsonify([])
+                
+            # Filtro robusto ignorando espaços extras e caixa alta/baixa
+            rows = conn.execute(
+                "SELECT * FROM acoes WHERE TRIM(LOWER(superintendencia)) = TRIM(LOWER(?)) ORDER BY id DESC", 
+                (user_setor.strip(),)
+            ).fetchall()
+            
     return jsonify([row_to_dict(r) for r in rows])
+
+@acoes_bp.get("/api/usuarios-por-superintendencia")
+@login_required
+def get_usuarios_por_superintendencia():
+    """Retorna apenas os usuários vinculados à superintendência informada."""
+    sup_nome = request.args.get('sup', '').strip()
+    if not sup_nome:
+        return jsonify([])
+        
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT username FROM users WHERE TRIM(LOWER(setor)) = TRIM(LOWER(?)) ORDER BY username ASC", 
+            (sup_nome,)
+        ).fetchall()
+        
+    return jsonify([r["username"] for r in rows])
 
 @acoes_bp.post("/api/acoes")
 @admin_required
 def create_acao():
     """Cria uma nova ação. Apenas administradores."""
     body = request.get_json()
-    sup_nome = body.get('sup', '')
+    sup_nome = body.get('sup', '').strip()
     
     with get_db() as conn:
-        sup_exists = conn.execute("SELECT 1 FROM superintendencias WHERE nome = ?", (sup_nome,)).fetchone()
-        if not sup_exists:
-            return jsonify({"erro": "Superintendência inválida ou inexistente."}), 400
-        
         now = utc_now()
         cur = conn.execute(
             """
             INSERT INTO acoes (
                 nome, descricao, superintendencia, responsavel, valor, fase,
-                proxima_etapa, prazo, status, criado_em, atualizado_em
+                proxima_etapa, prazo, status, criado_em, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
             """,
             (body.get('nome', ''), body.get('desc', ''), sup_nome, body.get('responsavel', ''),
@@ -45,19 +86,15 @@ def create_acao():
 def update_acao(acao_id):
     """Atualiza uma ação existente. Apenas administradores."""
     body = request.get_json()
-    sup_nome = body.get('sup', '')
+    sup_nome = body.get('sup', '').strip()
     
     with get_db() as conn:
-        sup_exists = conn.execute("SELECT 1 FROM superintendencias WHERE nome = ?", (sup_nome,)).fetchone()
-        if not sup_exists:
-            return jsonify({"erro": "Superintendência inválida ou inexistente."}), 400
-            
         now = utc_now()
         conn.execute(
             """
             UPDATE acoes SET 
                 nome = ?, descricao = ?, superintendencia = ?, responsavel = ?, valor = ?, 
-                fase = ?, proxima_etapa = ?, prazo = ?, atualizado_em = ?
+                fase = ?, proxima_etapa = ?, prazo = ?, updated_at = ?
             WHERE id = ?
             """,
             (body.get('nome', ''), body.get('desc', ''), sup_nome, body.get('responsavel', ''), body.get('valor', 0), 
@@ -91,7 +128,7 @@ def excluir_acoes_lote():
 @acoes_bp.get("/api/acoes/<int:acao_id>/comentarios")
 @login_required
 def listar_comentarios(acao_id):
-    """Retorna o histórico cronológico de notas/comentários de uma demanda específica."""
+    """Retorna o histórico cronológico de comentários de uma demanda específica."""
     with get_db() as conn:
         rows = conn.execute("SELECT username, texto, criado_em FROM comentarios WHERE acao_id = ? ORDER BY id ASC", (acao_id,)).fetchall()
     return jsonify([{"username": r["username"], "texto": r["texto"], "criado_em": r["criado_em"]} for r in rows])
@@ -99,13 +136,13 @@ def listar_comentarios(acao_id):
 @acoes_bp.post("/api/acoes/<int:acao_id>/comentarios")
 @login_required
 def adicionar_comentario(acao_id):
-    """Permite a qualquer usuário autenticado registrar observações e comentários."""
+    """Permite a qualquer usuário registrar observações e comentários."""
     body = request.get_json()
     texto = body.get("texto", "").strip()
     if not texto:
         return jsonify({"erro": "O comentário não pode ser vazio"}), 400
         
-    username = session['user']
+    username = session.get('user') or session.get('username')
     now = utc_now()
     with get_db() as conn:
         conn.execute("INSERT INTO comentarios (acao_id, username, texto, criado_em) VALUES (?, ?, ?, ?)", (acao_id, username, texto, now))
@@ -127,19 +164,15 @@ def importar_acoes():
                 """
                 INSERT INTO acoes (
                     nome, descricao, superintendencia, responsavel, valor, fase,
-                    proxima_etapa, prazo, status, criado_em, atualizado_em
+                    proxima_etapa, prazo, status, criado_em, updated_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)
                 """,
-                (item.get('nome', ''), item.get('desc', ''), item.get('sup', ''), item.get('responsavel', ''),
+                (item.get('nome', ''), item.get('desc', ''), item.get('sup', '').strip(), item.get('responsavel', ''),
                  item.get('valor', 0), item.get('fase', 'Não iniciado'), 
                  item.get('prox', ''), item.get('prazo', ''), now, now)
             )
             count += 1
             
-            sup_name = item.get('sup')
-            if sup_name:
-                conn.execute("INSERT OR IGNORE INTO superintendencias (nome, criado_em) VALUES (?, ?)", (sup_name, now))
-                
         rows = conn.execute("SELECT * FROM acoes ORDER BY id DESC").fetchall()
                 
     return jsonify({"msg": "Importação concluída", "importados": count, "acoes": [row_to_dict(r) for r in rows]}), 201
@@ -160,7 +193,7 @@ def create_superintendencia():
     now = utc_now()
     try:
         with get_db() as conn:
-            conn.execute("INSERT INTO superintendencias (nome, criado_em) VALUES (?, ?)", (body['nome'], now))
+            conn.execute("INSERT INTO superintendencias (nome, criado_em) VALUES (?, ?)", (body['nome'].strip(), now))
         return jsonify({"msg": "Superintendência criada"}), 201
     except sqlite3.IntegrityError:
         return jsonify({"erro": "Esta superintendência já existe."}), 400
@@ -171,7 +204,7 @@ def rename_superintendencia(sup_id):
     """Renomeia uma superintendência existente. Apenas administradores."""
     body = request.get_json()
     with get_db() as conn:
-        conn.execute("UPDATE superintendencias SET nome = ? WHERE id = ?", (body['nome'], sup_id))
+        conn.execute("UPDATE superintendencias SET nome = ? WHERE id = ?", (body['nome'].strip(), sup_id))
     return jsonify({"msg": "Superintendência renomeada com sucesso"}), 200
 
 @acoes_bp.delete("/api/superintendencias/<int:sup_id>")
@@ -179,5 +212,6 @@ def rename_superintendencia(sup_id):
 def delete_superintendencia(sup_id):
     """Exclui uma superintendência. Apenas administradores."""
     with get_db() as conn:
+        conn.execute("DELETE FROM acoes WHERE superintendencia IN (SELECT nome FROM superintendencias WHERE id = ?)", (sup_id,))
         conn.execute("DELETE FROM superintendencias WHERE id = ?", (sup_id,))
     return "", 204

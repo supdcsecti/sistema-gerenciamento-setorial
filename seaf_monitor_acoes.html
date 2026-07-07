@@ -163,13 +163,11 @@ input[type="checkbox"].row-selector {
   <div id="loginScreen" style="display:flex; position:fixed; inset:0; background: linear-gradient(rgba(0, 34, 68, 0.88), rgba(0, 34, 68, 0.88)), url('assets/imglogin.jpeg') no-repeat center center fixed; background-size: cover; align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(6px);">
     <div class="card" style="width: 360px; padding: 24px; display:flex; flex-direction:column; gap:16px; background: var(--accent); border: 1px solid rgba(255,255,255,0.2);">
       
-      <div style="text-align:center; margin-bottom: -30px;">
-         <img src="assets/img logo.png" alt="Logo SECTI" style="width: 100px; height: auto;" />
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px;">
+         <img src="assets/img logo.png" alt="Logo SECTI" style="width: 70px; height: auto;" />
+         <h2 style="margin:0; font-size: 24px; color: #ffffff;">Login</h2>
       </div>
       
-      <div style="text-align:center; margin-bottom: -30px;">
-        <h2 style="margin:0; font-size: 24px; color: #ffffff;">Login</h2>
-      </div>
       <div class="form-group">
         <label>Usuário</label>
         <input id="loginUser" type="text" placeholder="Seu nome de usuário" />
@@ -333,14 +331,14 @@ input[type="checkbox"].row-selector {
   <div class="card" style="width:min(920px, 96vw); max-height:95vh; overflow:auto; padding:24px; background:var(--panel);">
     <h3 style="margin:0 0 20px 0; font-size:1.5rem; border-bottom:1px solid #1a4d80; padding-bottom:12px;">Dados do Registro</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-      <div class="form-group"><label>Programa / Ação / Projeto</label><input id="f_nome" type="text" /></div>
-      <div class="form-group"><label>Superintendência</label><select id="f_sup"></select></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Descrição</label><textarea id="f_desc" rows="3"></textarea></div>
-      <div class="form-group"><label>Responsável pela Demanda</label><select id="f_responsavel"></select></div>
-      <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01" /></div>
-      <div class="form-group"><label>Fase</label><select id="f_fase"><option>Não iniciado</option><option>Em andamento</option><option>Atrasado</option><option>Parado</option><option>Concluído</option></select></div>
-      <div class="form-group"><label>Próxima etapa</label><input id="f_prox" type="text" /></div>
-      <div class="form-group"><label>Prazo para conclusão</label><input id="f_prazo" type="date" /></div>
+      <div class="form-group"><label>Programa / Ação / Projeto *</label><input id="f_nome" type="text" /></div>
+      <div class="form-group"><label>Superintendência *</label><select id="f_sup"></select></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Descrição *</label><textarea id="f_desc" rows="3"></textarea></div>
+      <div class="form-group"><label>Responsável pela Demanda *</label><select id="f_responsavel"></select></div>
+      <div class="form-group"><label>Valor (R$) *</label><input id="f_valor" type="number" step="0.01" /></div>
+      <div class="form-group"><label>Fase *</label><select id="f_fase"><option>Não iniciado</option><option>Em andamento</option><option>Atrasado</option><option>Parado</option><option>Concluído</option></select></div>
+      <div class="form-group"><label>Próxima etapa *</label><input id="f_prox" type="text" /></div>
+      <div class="form-group"><label>Prazo para conclusão *</label><input id="f_prazo" type="date" /></div>
     </div>
 
     <div class="comentarios-container" id="f_comentarios_bloco" style="display: none;">
@@ -434,7 +432,6 @@ input[type="checkbox"].row-selector {
 </div>
 
 <script>
-// Mantendo toda a lógica JavaScript intacta
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 let data = [];
@@ -637,13 +634,40 @@ function prepararEdicaoUsuario(username, email, setor, role) {
     $('#passLabel').textContent = 'Substituir Senha (Opcional)'; $('#passHelp').style.display = 'block';
 }
 
-async function excluirUsuario(username) {
-    if(!confirm(`Deseja realmente revogar os acessos do usuário "${username}"?`)) return;
+// CORREÇÃO E SOLUÇÃO DO CONFLITO ASSÍNCRONO DE CARREGAMENTO
+async function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue, supForcada) {
+    const valorSup = supForcada !== undefined ? supForcada : ($('#f_sup').value || "");
+    const respSelectEl = $('#f_responsavel');
+    
+    respSelectEl.innerHTML = '<option value="">Carregando...</option>';
+    
+    if(!valorSup) {
+        respSelectEl.innerHTML = '<option value="">— Selecione uma superintendência primeiro —</option>';
+        return;
+    }
+
     try {
-        await api('DELETE', `/users/${username}`); await carregarListaUsuarios();
-        if(isEditingUser && $('#newUser').value === username) limparFormUsuario();
-        atualizarResponsaveisPorSuperintendencia();
-    } catch(err) { alert(err.message); }
+        const response = await fetch(`/api/usuarios-por-superintendencia?sup=${encodeURIComponent(valorSup)}`);
+        const usuarios = await response.json();
+        
+        let html = '<option value="">— Selecione um responsável —</option>';
+        
+        if (usuarios && usuarios.length > 0) {
+            html += usuarios.map(u => 
+                `<option value="${esc(u)}"${u === selectedResponsavelValue ? ' selected':''}>${esc(u)}</option>`
+            ).join('');
+        } else {
+            html = '<option value="">Nenhum usuário nesta superintendência</option>';
+        }
+        
+        respSelectEl.innerHTML = html;
+        
+        if (selectedResponsavelValue) {
+            respSelectEl.value = selectedResponsavelValue;
+        }
+    } catch (e) {
+        respSelectEl.innerHTML = '<option value="">Erro ao carregar usuários</option>';
+    }
 }
 
 $('#btnCancelUserEdit').addEventListener('click', (e) => { 
@@ -667,7 +691,7 @@ $('#btnCreateUser').addEventListener('click', async () => {
         alert(isEditingUser ? "Usuário atualizado com sucesso!" : "Novo usuário cadastrado com sucesso!");
         limparFormUsuario(); $('#modalUsers').style.display = 'none';
         await fetchAndCacheUsers(); 
-        atualizarResponsaveisPorSuperintendencia(); 
+        await atualizarResponsaveisPorSuperintendencia(); 
     } catch(err) { alert(err.message); }
 });
 
@@ -706,33 +730,6 @@ async function loadData(){ try{ data = await api('GET', '/acoes'); setDbStatus(t
 function getSupNames(){
   const set = new Set(sups.map(s => s.nome)); filtered.forEach(d => { if(d.sup) set.add(d.sup) });
   return [...set].sort((a,b) => a.localeCompare(b, 'pt-BR'));
-}
-
-function atualizarResponsaveisPorSuperintendencia(selectedResponsavelValue, supForcada) {
-    const valorSup = supForcada !== undefined ? supForcada : ($('#f_sup').value || "");
-    const supSelecionada = valorSup.trim().toLowerCase();
-    const respSelectEl = $('#f_responsavel');
-    const valorAtualAnterior = selectedResponsavelValue !== undefined ? selectedResponsavelValue : respSelectEl.value;
-    
-    if(!supSelecionada) {
-        respSelectEl.innerHTML = '<option value="">— Selecione uma superintendência primeiro —</option>';
-        return;
-    }
-    
-    const usuariosFiltrados = systemUsers.filter(u => String(u.setor || '').trim().toLowerCase() === supSelecionada);
-    
-    if(!usuariosFiltrados.length) {
-        respSelectEl.innerHTML = `<option value="${valorAtualAnterior || 'administrator'}">${valorAtualAnterior || 'administrator (Padrão)'}</option><option value="administrator">administrator</option>`;
-        return;
-    }
-    
-    let html = usuariosFiltrados.map(u => `<option value="${esc(u.username)}"${u.username === valorAtualAnterior ? ' selected':''}>${esc(u.username)}</option>`).join('');
-    
-    if(valorAtualAnterior && !usuariosFiltrados.some(u => u.username === valorAtualAnterior)) {
-        html = `<option value="${esc(valorAtualAnterior)}" selected>${esc(valorAtualAnterior)}</option>` + html;
-    }
-    
-    respSelectEl.innerHTML = html;
 }
 
 $('#f_sup').addEventListener('change', () => atualizarResponsaveisPorSuperintendencia());
@@ -915,12 +912,17 @@ async function carregarComentariosDemanda(acaoId) {
     }
 }
 
+// EDITROW AGUARDA CORRETAMENTE O PREENCHIMENTO DO SELECT
 async function editRow(id){
   editingId = id; const d = data.find(x => x.id === id); if(!d) return;
   renderSupSelects(undefined, d.sup||'');
   
-  $('#f_nome').value = d.nome||''; 
   $('#f_sup').value = d.sup||''; 
+  
+  // Aguarda a montagem assíncrona da lista correta de usuários
+  await atualizarResponsaveisPorSuperintendencia(d.responsavel, d.sup);
+  
+  $('#f_nome').value = d.nome||''; 
   $('#f_desc').value = d.desc||'';
   $('#f_valor').value = d.valor||0; 
   $('#f_fase').value = d.fase||'Não iniciado'; 
@@ -931,8 +933,6 @@ async function editRow(id){
   $$('#modal input, #modal select, #modal textarea').forEach(el => {
       if(el.id !== 'newComentarioTexto') el.disabled = isUser;
   });
-
-  atualizarResponsaveisPorSuperintendencia(d.responsavel, d.sup);
   
   $('#f_comentarios_bloco').style.display = 'block';
   $('#newComentarioTexto').value = '';
@@ -962,14 +962,30 @@ $('#btnPostarComentario').addEventListener('click', async () => {
     } catch(err) { alert(err.message); }
 });
 
+// OBRIGATORIEDADE DE TODOS OS CAMPOS APLICADA AQUI
 async function saveRow(){
   if(currentUserRole !== 'admin') return; 
+  
+  const nome = $('#f_nome').value.trim();
+  const sup = $('#f_sup').value;
+  const desc = $('#f_desc').value.trim();
+  const responsavel = $('#f_responsavel').value;
+  const valorRaw = $('#f_valor').value;
+  const fase = $('#f_fase').value;
+  const prox = $('#f_prox').value.trim();
+  const prazo = $('#f_prazo').value;
+
+  if (!nome || !sup || !desc || !responsavel || !valorRaw || !fase || !prox || !prazo) {
+      alert("Atenção: Todos os campos com asterisco (*) são obrigatórios. Por favor, preencha as informações pendentes.");
+      return;
+  }
+
   const d = {
-    nome: $('#f_nome').value.trim(), sup: $('#f_sup').value, desc: $('#f_desc').value.trim(),
-    responsavel: $('#f_responsavel').value, valor: parseFloat($('#f_valor').value||'0'),
-    fase: $('#f_fase').value, prox: $('#f_prox').value.trim(), prazo: $('#f_prazo').value
+    nome, sup, desc, responsavel, 
+    valor: parseFloat(valorRaw || '0'),
+    fase, prox, prazo
   };
-  if(!d.sup){ alert('Selecione uma superintendência.'); return; }
+
   try{
     if(editingId === null) await api('POST', '/acoes', d); else await api('PUT', '/acoes/' + editingId, d);
     await loadData(); $('#modal').style.display='none';
@@ -1068,11 +1084,21 @@ document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && tvMode) setTV
 
 async function initAuth(){
   try {
-    const res = await fetch('/api/me'); if(!res.ok) throw new Error('Não logado');
-    const user = await res.json(); currentUserRole = user.role;
-    if(user.requer_reset) { $('#forceResetScreen').style.display = 'flex'; } 
-    else { $('#loginScreen').style.display = 'none'; $('#appContainer').style.display = 'block'; applyPermissions(); initData(); }
-  } catch(e) { showLogin(); }
+    const res = await fetch('/api/me'); 
+    if(!res.ok) throw new Error('Não logado');
+    const user = await res.json(); 
+    currentUserRole = user.role;
+    if(user.requer_reset) { 
+        $('#forceResetScreen').style.display = 'flex'; 
+    } else { 
+        $('#loginScreen').style.display = 'none'; 
+        $('#appContainer').style.display = 'block'; 
+        applyPermissions(); 
+        await initData(); 
+    }
+  } catch(e) { 
+      showLogin(); 
+  }
 }
 
 async function initData() { 
